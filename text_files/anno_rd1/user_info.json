@@ -1,0 +1,134 @@
+{
+    "xuan": {
+        "username": "xuan",
+        "s_idx": 0,
+        "e_idx": 999,
+        "current_idx": 123
+    },
+    "haonan": {
+        "username": "haonan",
+        "s_idx": 1000,
+        "e_idx": 1999,
+        "current_idx": 0
+    },
+    "yuansheng": {
+        "username": "yuansheng",
+        "s_idx": 2000,
+        "e_idx": 2999,
+        "current_idx": 1
+    },
+    "tianle": {
+        "username": "tianle",
+        "s_idx": 3000,
+        "e_idx": 3999,
+        "current_idx": 0
+    },
+    "kai": {
+        "username": "kai",
+        "s_idx": 4000,
+        "e_idx": 4999,
+        "current_idx": 407
+    },
+    "abhranil": {
+        "username": "abhranil",
+        "s_idx": 5000,
+        "e_idx": 5999,
+        "current_idx": 0
+    },
+    "quy": {
+        "username": "quy",
+        "s_idx": 6000,
+        "e_idx": 6999,
+        "current_idx": 156
+    },
+    "ziyan": {
+        "username": "ziyan",
+        "s_idx": 7000,
+        "e_idx": 7999,
+        "current_idx": 1
+    },
+    "yash": {
+        "username": "yash",
+        "s_idx": 8000,
+        "e_idx": 8999,
+        "current_idx": 636
+    },
+    "achint": {
+        "username": "achint",
+        "s_idx": 9000,
+        "e_idx": 9999,
+        "current_idx": 896
+    },
+    "aaran": {
+        "username": "aaran",
+        "s_idx": 10000,
+        "e_idx": 10999,
+        "current_idx": 28
+    },
+    "sherman": {
+        "username": "sherman",
+        "s_idx": 11000,
+        "e_idx": 11999,
+        "current_idx": 9
+    },
+    "richard": {
+        "username": "richard",
+        "s_idx": 12000,
+        "e_idx": 12999,
+        "current_idx": 0
+    },
+    "bohan": {
+        "username": "bohan",
+        "s_idx": 13000,
+        "e_idx": 13999,
+        "current_idx": 967
+    },
+    "yuchen": {
+        "username": "yuchen",
+        "s_idx": 14000,
+        "e_idx": 14999,
+        "current_idx": 998
+    },
+    "zhiheng": {
+        "username": "zhiheng",
+        "s_idx": 15000,
+        "e_idx": 15999,
+        "current_idx": 0
+    },
+    "alice": {
+        "username": "alice",
+        "s_idx": 28050,
+        "e_idx": 28099,
+        "current_idx": 0
+    },
+    "bob": {
+        "username": "bob",
+        "s_idx": 28000,
+        "e_idx": 28049,
+        "current_idx": 8
+    },
+    "carol": {
+        "username": "carol",
+        "s_idx": 28100,
+        "e_idx": 28149,
+        "current_idx": 0
+    },
+    "dave": {
+        "username": "dave",
+        "s_idx": 28150,
+        "e_idx": 28199,
+        "current_idx": 0
+    },
+    "eve": {
+        "username": "eve",
+        "s_idx": 28200,
+        "e_idx": 28249,
+        "current_idx": 0
+    },
+    "frank": {
+        "username": "frank",
+        "s_idx": 28250,
+        "e_idx": 28299,
+        "current_idx": 0
+    }
+}

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>预标注页</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="display.css">
+
+</head>
+
+<body>
+    <video class="video_style" controls autoplay muted loop>
+        <source src="{{ url_for('static', filename=video) }}" type="video/mp4">
+    </video>
+
+    <p class="input_prompt">Input Prompt: <br>{{text_prompt}}</p>
+
+    <div style="position:fixed; top: 2%; right:32%;" >
+        <p>当前进度：<br>{{ current_idx+1 }}/{{end_index+1 }} <br></p>
+    </div>
+    <div style="position:fixed; bottom: 2%; right:1%;">
+        {% if vid_name in answered_vid_list %}
+        <p class="answered">已标注 <br></p>
+            <div class="table_style"></div>
+            ("3": 好, "2"：一般, "1": 差，"-1"：有问题已反馈)<br>
+            <table style="text-align: left;font-size: 13px;">
+                <tr><td>小分</td> <td>您的回答</td><td>参考回答</td></tr>
+                <tr><td>观感质量（visual quality）</td> <td>{{ current_answers[0] }}</td><td>{{ current_refs[0] }}</td></tr>
+                <tr><td>物体一致性（objects consistency）</td> <td>{{ current_answers[1] }}</td><td>{{ current_refs[1] }}</td></tr>
+                <tr><td>动态程度（dynamic degree）</td> <td>{{ current_answers[2] }}</td><td>{{ current_refs[2] }}</td></tr>
+                <tr><td>运动流畅度（motion smoothness）</td> <td>{{ current_answers[3] }}</td><td>{{ current_refs[3] }}</td></tr>
+                <tr><td>符合文本提示词（t2v alignment）</td> <td>{{ current_answers[4] }}</td><td>{{ current_refs[4] }}</td></tr>
+                <tr><td>符合事实逻辑（factual consistency）</td> <td>{{ current_answers[5] }}</td><td>{{ current_refs[5] }}</td></tr>
+                <tr><td>整体得分（overall score）</td> <td>{{ current_answers[6] }}</td></tr>
+            </table>
+            </div>
+            {% else %}
+        <p class="not-answered">未标注</p>
+        {% endif %}
+    </div>
+
+    <form action="{{ url_for('navigate_pre_anno') }}" method="post">
+        <input type="hidden" name="current_idx" value="{{ current_idx }}">
+        <button type="submit" name="direction" class="button_last_next"
+            value="last" >上一个</button>
+        <button type="submit" name="direction" class="button_last_next"
+            value="next" >下一个</button>
+    </form>
+    <br>
+    <div class="QA-text">
+        (每回答完一个视频并提交后，您可以点击“上一个”按钮来查看您的答案和我们提供的推荐选项。)
+    </div>
+    <br>
+
+    <div class="QA-text">
+        <form action="{{ url_for('welcome') }}" method="post">
+            <input type="hidden" name="current_idx" value="{{ current_idx }}">
+            <input type="hidden" name="language" value="en">
+            <button type="submit" name="logout" style=" width: 160px; height: 40px; font-size: 16px;">退出预标注</button>
+        </form>
+        (如果需要查看欢迎页面上每个小分的定义和示例，可以随时退出，进度会被保存。)
+    </div>
+    <br>
+
+    <form action="{{ url_for('pre_anno_submit') }}" method="post">
+        <input type="hidden" name="text_prompt" value="{{ text_prompt }}">
+        <input type="hidden" name="video" value="{{ video }}">
+        <input type="hidden" name="current_idx" value="{{ current_idx }}">
+        <div class="QA-text">
+            {{ before_start_anno | safe }}
+        </div>
+
+        {% for que_idx in range(num_que) %}
+            <div class="QA-text">
+                {{ subscore_def[que_idx] | safe }}
+                <div class="choice_box">
+                    <p><label><input type="radio" name="q{{ que_idx+1 }}" value="3" {% if current_answers[que_idx] == '3' %} checked {% endif %}>好</label>  
+                    <label><input type="radio" name="q{{ que_idx+1 }}" value="2" {% if current_answers[que_idx] == '2' %} checked {% endif %}>一般</label>  
+                    <label><input type="radio" name="q{{ que_idx+1 }}" value="1" {% if current_answers[que_idx] == '1' %} checked {% endif %}>差</label></p>
+                </div>
+                {% if vid_name in answered_vid_list %}
+                    <p class="ref-text">原因: {{current_reasons[que_idx]}} </p>
+                {% endif %}
+                <br>
+            </div>       
+        {% endfor %}
+
+        <br>
+        <button type="submit" class="button_submit">提交</button>
+        <br>
+        <br>
+    </form>
+
+</body>
+</html>
+
+

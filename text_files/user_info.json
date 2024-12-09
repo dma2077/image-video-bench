@@ -1,0 +1,32 @@
+{
+    "1": {
+        "username": "1",
+        "s_idx": 0,
+        "e_idx": 299,
+        "current_idx": 1
+    },
+    "2": {
+        "username": "2",
+        "s_idx": 300,
+        "e_idx": 599,
+        "current_idx": 0
+    },
+    "3": {
+        "username": "3",
+        "s_idx": 600,
+        "e_idx": 899,
+        "current_idx": 0
+    },
+    "4": {
+        "username": "4",
+        "s_idx": 900,
+        "e_idx": 1199,
+        "current_idx": 0
+    },
+    "5": {
+        "username": "5",
+        "s_idx": 1200,
+        "e_idx": 1499,
+        "current_idx": 0
+    }
+}

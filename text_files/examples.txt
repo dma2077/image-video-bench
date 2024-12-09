@@ -1,0 +1,8 @@
+visual good
+
+visual avg
+
+visual bad
+
+temporal
+

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Annotating Videos</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/videos/display.css"> <!-- 引入外部CSS文件 -->
+</head>
+
+<body>
+    <div class="container">
+        <!-- 左侧栏 -->
+        <div class="left-column">
+            <h2>问题类型</h2>
+            <div class="QA-text">
+                {{ subscore_def[0] | safe }}
+            </div>
+            <h2>图片要求</h2>
+            <div class="QA-text">
+                {{ subscore_def[1] | safe }}
+            </div>
+        </div>
+
+        <!-- 中间栏 -->
+        <div class="center-column">
+            <!-- 视频播放器 -->
+            <video class="video_style" controls autoplay muted loop>
+                <source src="{{ url_for('static', filename=video) }}" type="video/mp4">
+                您的浏览器不支持视频标签。
+            </video>
+
+            <!-- 图片上传和预览区域 -->
+            <div class="upload-section">
+                <div id="image-upload-container" tabindex="0">
+                    <label for="image-upload" id="image-upload-label">点击上传图片或粘贴图片</label>
+                    <!-- 关联到主表单的 form 属性 -->
+                    <input type="file" id="image-upload" name="image" accept="image/*" form="submit-form" required>
+                    <div id="image-preview">
+                        <!-- 图片预览区域 -->
+                    </div>
+                </div>
+            </div>
+
+            <h2>混淆项生成方法参考</h2>
+            <div class="QA-text">
+                {{ subscore_def[2] | safe }}
+            </div>
+        </div>
+
+        <!-- 右侧栏 -->
+        <div class="right-column">
+            <!-- 提交表单 -->
+            <form id="submit-form" action="{{ url_for('submit') }}" method="post" enctype="multipart/form-data" class="main-form">
+                <!-- 隐藏字段 -->
+                <input type="hidden" name="source_page" value="display">
+                <input type="hidden" name="video" value="{{ video }}">
+                <input type="hidden" name="current_idx" value="{{ current_idx }}">
+
+                <!-- 问题输入区域 -->
+                <div class="input-fields">
+                    <label for="question">Question:</label>
+                    <textarea id="question" name="question" rows="2" required></textarea>
+
+                    <!-- 修改后的 Question Type 下拉选择框 -->
+                    <label for="question_type">Question Type:</label>
+                    <select id="question_type" name="question_type" required>
+                        <option value="" disabled selected>Please select the type of question</option>
+                        <option value="Summary">Summary</option>
+                        <option value="Spatial relationship">Spatial relationship</option>
+                        <option value="Existence">Existence</option>
+                        <option value="Reverse Existence">Reverse Existence</option>
+                        <option value="NLI">NLI</option>
+                        <option value="Details Event">Details Event</option>
+                        <option value="Instruction manual">Instruction manual</option>
+                        <option value="Keyframe extraction">Keyframe extraction</option>
+                        <option value="Counting">Counting</option>
+                        <option value="Space-time computing">Space-time computing</option>
+                        <option value="Constrained OCR">Constrained OCR</option>
+                        <!-- 根据需要添加更多选项 -->
+                    </select>
+
+                    <!-- 修改后的 Granularity 下拉选择框 -->
+                    <label for="granularity">Granularity:</label>
+                    <select id="granularity" name="granularity" required>
+                        <option value="" disabled selected>Please select the video granularity</option>
+                        <option value="Video Frame">Video Frame</option>
+                        <option value="Video Clip">Video Clip</option>
+                        <option value="Whole Video">Whole Video</option>
+                        <!-- 根据需要添加更多选项 -->
+                    </select>
+
+                    <label for="answer">Answer:</label>
+                    <input type="text" id="answer" name="answer" required>
+
+                    <label for="answer_location">Answer_location:</label>
+                    <input type="text" id="answer_location" name="answer_location" required>
+                    <!-- 干扰项 -->
+                    <div class="distractors">
+                        {% for i in range(1, 10) %}
+                            <label for="distractor{{i}}">Distractor {{i}}:</label>
+                            <input type="text" id="distractor{{i}}" name="distractor{{i}}">
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- 提交按钮 -->
+                <div class="submit-button-container">
+                    <button type="submit" name="action" value="submit" class="button_submit">提交</button>
+                </div>
+            </form>
+
+            <!-- 跳转表单 -->
+            <form id="navigate-form" action="{{ url_for('submit') }}" method="post" class="navigate-form">
+                <!-- 隐藏字段 -->
+                <input type="hidden" name="video" value="{{ video }}">
+                <input type="hidden" name="current_idx" value="{{ current_idx }}">
+                <input type="hidden" name="_is_val" value="{{ _is_val }}">
+                
+                <p><b>Current progress</b>: <br>{{ current_idx+1 }}/{{ end_index+1 }}</p>
+                <label for="next_idx">Turn to:</label>
+                <input type="number" name="next_idx" placeholder="123" class="idx_input_box" min="1" max="{{ end_index + 1 }}" required>
+                <button type="submit" name="action" value="navigate" class="navigate-button">Enter</button>
+            </form>
+
+            <!-- 按钮组，紧跟着干扰项下方 -->
+            <div class="button-group">
+                <!-- 上一个按钮的表单 -->
+                <form action="{{ url_for('navigate_main') }}" method="post" class="button-form">
+                    <input type="hidden" name="current_idx" value="{{ current_idx }}">
+                    <input type="hidden" name="direction" value="last">
+                    <button type="submit" class="button_previous">上一个</button>
+                </form>
+
+                <!-- 下一个按钮的表单 -->
+                <form action="{{ url_for('navigate_main') }}" method="post" class="button-form">
+                    <input type="hidden" name="current_idx" value="{{ current_idx }}">
+                    <input type="hidden" name="direction" value="next">
+                    <button type="submit" class="button_next">下一个</button>
+                </form>
+            </div>
+
+            <!-- 显示Flash消息 -->
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <ul class="flashes">
+                  {% for message in messages %}
+                    <li>{{ message }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+
+    <script>
+        // 处理图片上传的预览
+        const imageInput = document.getElementById('image-upload');
+        const imagePreview = document.getElementById('image-preview');
+        const uploadContainer = document.getElementById('image-upload-container');
+
+        // Function to display the image preview
+        function displayImage(file) {
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // 清除之前的预览
+                    imagePreview.innerHTML = '';
+                    const img = document.createElement('img');
+                    img.src = e.target.result;  // 设置图片的 data URL
+                    img.alt = "Image Preview";
+                    img.classList.add('preview-image');
+                    imagePreview.appendChild(img);  // 添加新的预览
+                };
+                reader.readAsDataURL(file);  // 读取图片文件
+            } else {
+                alert('请上传有效的图片文件。');
+            }
+        }
+
+        // Event listener for file input change
+        imageInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            displayImage(file);
+        });
+
+        // Event listener for paste events
+        uploadContainer.addEventListener('paste', function(event) {
+            const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+            for (let index in items) {
+                const item = items[index];
+                if (item.kind === 'file' && item.type.startsWith('image/')) {
+                    const blob = item.getAsFile();
+                    displayImage(blob);
+                    // 设置文件输入的值为粘贴的图片
+                    const dataTransfer = new DataTransfer();
+                    // 添加新的文件
+                    dataTransfer.items.add(blob);
+                    imageInput.files = dataTransfer.files;
+                    break; // 只处理第一个图片
+                }
+            }
+        });
+
+        // 点击上传容器时聚焦，以便接收粘贴事件
+        uploadContainer.addEventListener('click', function() {
+            uploadContainer.focus();
+        });
+
+        // 焦点样式变化
+        uploadContainer.addEventListener('focus', function() {
+            uploadContainer.classList.add('focused');
+        });
+        uploadContainer.addEventListener('blur', function() {
+            uploadContainer.classList.remove('focused');
+        });
+    </script>
+</body>
+</html>

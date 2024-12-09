@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>stage2 welcome page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/videos/welcome.css">
+    <style>
+        .text-paragraph {
+        max-width: 65%; 
+        word-wrap: break-word; 
+        overflow-wrap: break-word;
+        line-height: 1.8;
+        }
+
+        .video_style {
+            position: fixed; 
+            top:1%; right:1%; 
+            height:40%;
+            width:30%;
+        }
+
+    </style>
+    
+</head>
+
+
+<body>
+
+    <div style="position: fixed; top: 2%; right: 2%;">
+        <form action="{{ url_for('login_method_1') }}" method="post">
+            <fieldset>
+                <legend>Annotator Login</legend>
+                <br>
+                Username: <input type="text" name="username"><br><br>
+                <input type="submit" style="width: 300px; height: 40px; font-size: 18px;" value="Annotate questions">
+                <br>
+            </fieldset>
+        </form>
+    
+        <form action="{{ url_for('login_method_2') }}" method="post">
+            <fieldset>
+                <legend>Annotator Login</legend>
+                <br>
+                Username: <input type="text" name="username"><br><br>
+                <input type="submit" style="width: 300px; height: 40px; font-size: 18px;" value="Annotate question_types">
+                <br>
+            </fieldset>
+        </form>
+    </div>
+
+
+    <h1>Image-Video bench Annotation</h1>
+    <div class="text-paragraph">
+        {{ before_start_anno | safe }}
+    </div>
+
+    <h1>Examples of 11 tasks</h1>
+
+    <!-- <div class="text-paragraph">
+        {{ visual_def | safe}}
+    </div> -->
+    
+    <p><b>1.Summary</b> </p>
+    
+
+    <div class="video-container">
+        <div class="video-item">
+            <video controls muted loop autoplay>
+                <source src="{{ url_for('static', filename='examples/videomme/hYTYb5sGznw.mp4') }}" type="video/mp4">
+            </video>
+        </div>
+        <div class="image-item good-image">
+            <p><strong>Good image</strong></p>
+            <p class="text-description">
+                Reason: The same person, with only the facial texture visible, occupies the majority of the image space, and the texture is clear.
+            </p>
+            <img src="{{ url_for('static', filename='examples/videomme/summary_good.PNG') }}" alt="Good Image" />
+        </div>
+        <div class="image-item bad-image">
+            <p><strong>Bad image</strong></p>
+            <p class="text-description">
+                Reason: The same person, wearing the same color of clothing, with the face occupying a smaller portion of the image space and the texture unclear.
+            </p>
+            <img src="{{ url_for('static', filename='examples/videomme/summary_bad.PNG') }}" alt="Bad Image" />
+        </div>
+    </div>
+
+    <div class="text-container">
+        <p><strong>Question: </strong>Summarize the main story of the person in the picture in the video.</p>
+        <p><strong>Question type: </strong> Summary question</p>
+        <p><strong>Granularity: </strong> Whole video</p>
+        <p><strong>Answer location: </strong> Whole video</p>
+        <p><strong>Answer: </strong>As one of four judges, she watched and commented on the performances of two dancers while holding their daughter.</p>
+        <p><strong>Distractor1: </strong>As one of four judges, she watched and commented on the performances of two dancers while holding their son.</p>
+        <p><strong>Distractor2: </strong>As one of five judges, she watched and commented on the performances of two dancers while holding their daughter.</p> 
+        <p><strong>Distractor3: </strong>As one of four judges, she watched and commented on the performances of two dancers while holding their daughter in the backstage.</p>
+        <p><strong>Distractor4: </strong>As one of four judges, she watched and commented on the performances of two dancers while holding their daughter, who was playing with a toy.</p>
+        <p><strong>Distractor5: </strong>As one of four judges, she watched and commented on the performances of two dancers.</p>
+        <p><strong>Distractor6: </strong>As one of four judges, she watched and commented on the performances of two dancers while holding her daughter.</p> 
+        <p><strong>Distractor7: </strong>As one of three judges, she watched and commented on the performances of two dancers while holding their daughter.</p> 
+        <p><strong>Distractor8: </strong>As one of four judges, she watched and commented on the performances of two dancers while holding their baby.</p>
+        <p><strong>Distractor9: </strong>As one of four judges, she watched and commented on the performances of two dancers while holding their daughter in the front row.</p>
+    </div>
+
+    <p><b>2.Spatial relationship</b> </p>
+    <div class="video-container">
+        <div class="video-item">
+            <video controls muted loop autoplay>
+                <source src="{{ url_for('static', filename='examples/videomme/e3fz3dqhN44.mp4') }}" type="video/mp4">
+            </video>
+        </div>
+        <div class="image-item good-image">
+            <p><strong>Good image</strong></p>
+            <p class="text-description">
+                Reason: Same person as in the video, but with a different shirt color.
+            </p>
+            <img src="{{ url_for('static', filename='examples/videomme/spatial_relationship_good.PNG') }}" alt="Good Image" />
+        </div>
+        <div class="image-item bad-image">
+            <p><strong>Bad image</strong></p>
+            <p class="text-description">
+                Reason: Same person as in the video, but with a same shirt color.
+            </p>
+            <img src="{{ url_for('static', filename='examples/videomme/spatial_relationship_bad.PNG') }}" alt="Bad Image" />
+        </div>
+    </div>
+
+    <div class="text-container">
+        <p><strong>Question: </strong>Where is the person from the image located inside the car in the video?</p>
+        <p><strong>Question type: </strong>Spatial relationship</p>
+        <p><strong>Granularity: </strong> Video clips</p>
+        <p><strong>Answer location: </strong> 5:40-6:30</p>
+        <p><strong>Answer: </strong>A woman was sitting in the driver's seat, the man in the photo was sitting in the passenger seat, another man was sitting behind the driver's seat, and another woman was sitting behind the passenger seat.</p>
+        <p><strong>Distractor1: </strong>A man is sitting in the driver's seat, the man in the photo is sitting in the passenger seat, another woman is sitting behind the driver, and another woman is sitting behind the passenger.</p>
+        <p><strong>Distractor2: </strong>A woman is sitting in the driver's seat, the man in the photo is sitting in the passenger seat, another man is sitting behind the driver, and another woman is sitting behind the passenger.</p>
+        <p><strong>Distractor3: </strong>A woman is sitting in the driver's seat, the man in the photo is sitting in the passenger seat, another man is sitting behind the driver, and another man is sitting behind the passenger.</p>
+        <p><strong>Distractor4: </strong>The man in the photo is sitting in the driver's seat, another woman is sitting in the passenger seat, another man is sitting behind the driver, and another woman is sitting behind the passenger.</p>
+        <p><strong>Distractor5: </strong>A woman is sitting in the driver's seat, the man in the photo is sitting in the passenger seat, another woman is sitting behind the driver, and another man is sitting behind the passenger.</p>
+        <p><strong>Distractor6: </strong>A man is sitting in the driver's seat, the man in the photo is sitting in the passenger seat, another man is sitting behind the driver, and another woman is sitting behind the passenger.</p>
+        <p><strong>Distractor7: </strong>A woman is sitting in the driver's seat, the man in the photo is sitting in the passenger seat, another woman is sitting behind the driver, and another man is sitting behind the passenger.</p>
+        <p><strong>Distractor8: </strong>A man is sitting in the driver's seat, the man in the photo is sitting in the passenger seat, another woman is sitting behind the driver, and another man is sitting behind the passenger.</p>
+        <p><strong>Distractor9: </strong>The man in the photo is sitting in the drive's seat, another man is sitting in the passenger seat, another woman is sitting behind the driver, and another woman is sitting behind the passenger.</p>
+    </div>
+
+    <p><b>3.Existence</b> </p>
+    <div class="video-container">
+        <div class="video-item">
+            <video controls muted loop autoplay>
+                <source src="{{ url_for('static', filename='examples/videomme/x8zGsWuu-e0.mp4') }}" type="video/mp4">
+            </video>
+        </div>
+        <div class="image-item good-image">
+            <p><strong>Good image</strong></p>
+            <p class="text-description">
+                Reason: The target object occupies the main part of the picture, and the texture is clear.
+            </p>
+            <img src="{{ url_for('static', filename='examples/videomme/exist_good.png') }}" alt="Good Image" />
+        </div>
+    </div>
+
+    <div class="text-container">
+        <p><strong>Question: </strong>Did the object in the image appear in the video?</p>
+        <p><strong>Question type: </strong>Existence</p>
+        <p><strong>Granularity: </strong> Video frame</p>
+        <p><strong>Answer location: </strong> 8:25</p>
+        <p><strong>Answer: </strong>Yes</p>
+        <p><strong>Distractor1: </strong>No</p>
+    </div>
+
+    <p><b>4.Reverse Existence</b> </p>
+    <div class="video-container">
+        <div class="video-item">
+            <video controls muted loop autoplay>
+                <source src="{{ url_for('static', filename='examples/videomme/e3fz3dqhN44.mp4') }}" type="video/mp4">
+            </video>
+        </div>
+        <div class="image-item good-image">
+            <p><strong>Good image</strong></p>
+            <p class="text-description">
+                Reason: Neither of the two people in the picture is a household name.
+            </p>
+            <img src="{{ url_for('static', filename='examples/videomme/Reverse_existance_good.png') }}" alt="Good Image" />
+        </div>
+        <div class="image-item good-image">
+            <p><strong>Bad image</strong></p>
+            <p class="text-description">
+                Reason: Elon Musk is too famous, no celebrities allowed in the picture.
+            </p>
+            <img src="{{ url_for('static', filename='examples/videomme/Reverse_existance_bad.png') }}" alt="Good Image" />
+        </div>
+    </div>
+
+    <div class="text-container">
+        <p><strong>Question: </strong>Is there anyone in the picture who is not in the video? If so, answer their location in the picture.</p>
+        <p><strong>Question type: </strong>Reverse_existence</p>
+        <p><strong>Granularity: </strong> Whole video</p>
+        <p><strong>Answer location: </strong> Whole video</p>
+        <p><strong>Answer: </strong>Right 1 is in the picture, but not in the video</p>
+        <p><strong>Distractor1: </strong>Left 1 is in the picture, but not in the video</p>
+        <p><strong>Distractor2: </strong>Left 1 and Right 1 are in the picture, but not in the video</p>
+        <p><strong>Distractor2: </strong>Left 1 and Right 1 are is in the picture, and in the video</p>
+    </div>
+
+
+    <p><b>5.NLI</b> </p>
+    <div class="video-container">
+        <div class="video-item">
+            <video controls muted loop autoplay>
+                <source src="{{ url_for('static', filename='examples/videomme/7Ni4gcl4tpE.mp4') }}" type="video/mp4">
+            </video>
+        </div>
+        <div class="image-item good-image">
+            <p><strong>Good image</strong></p>
+            <p class="text-description">
+                Reason: Lesser-known attractions.
+            </p>
+            <img src="{{ url_for('static', filename='examples/videomme/NLI_good.png') }}" alt="Good Image" />
+        </div>
+        <div class="image-item good-image">
+            <p><strong>Bad image</strong></p>
+            <p class="text-description">
+                Reason: Famous attractions, the Great Wall.
+            </p>
+            <img src="{{ url_for('static', filename='examples/videomme/NLI_bad.png') }}" alt="Good Image" />
+        </div>
+    </div>
+
+    <div class="text-container">
+        <p><strong>Question: </strong>Does the scenery in the picture match the scenery in the video?</p>
+        <p><strong>Question type: </strong>NLI</p>
+        <p><strong>Granularity: </strong> Whole video</p>
+        <p><strong>Answer location: </strong> Whole video</p>
+        <p><strong>Answer: </strong>No</p>
+        <p><strong>Distractor1: </strong>Yes</p>
+    </div>
+
+
+    <p><b>6.Details Event</b> </p>
+    <div class="video-container">
+        <div class="video-item">
+            <video controls muted loop autoplay>
+                <source src="{{ url_for('static', filename='examples/videomme/e3fz3dqhN44.mp4') }}" type="video/mp4">
+            </video>
+        </div>
+        <div class="image-item good-image">
+            <p><strong>Good image</strong></p>
+            <p class="text-description">
+                Reason: Same person as in the video, but with a different shirt color.
+            </p>
+            <img src="{{ url_for('static', filename='examples/videomme/spatial_relationship_good.PNG') }}" alt="Good Image" />
+        </div>
+        <div class="image-item bad-image">
+            <p><strong>Bad image</strong></p>
+            <p class="text-description">
+                Reason: Same person as in the video, but with a same shirt color.
+            </p>
+            <img src="{{ url_for('static', filename='examples/videomme/spatial_relationship_bad.PNG') }}" alt="Bad Image" />
+        </div>
+    </div>
+
+    <div class="text-container">
+        <p><strong>Question: </strong>What color coat is the person in the picture wearing in the video?</p>
+        <p><strong>Question type: </strong>Details Event</p>
+        <p><strong>Granularity: </strong> Whole Video</p>
+        <p><strong>Answer location: </strong> 0:08</p>
+        <p><strong>Answer: </strong>Black</p>
+        <p><strong>Distractor1: </strong>White</p>
+        <p><strong>Distractor2: </strong>Red</p>
+        <p><strong>Distractor3: </strong>Blue</p>
+        <p><strong>Distractor4: </strong>Green</p>
+        <p><strong>Distractor5: </strong>Yellow</p>
+        <p><strong>Distractor6: </strong>Orange</p>
+        <p><strong>Distractor7: </strong>Pink</p>
+        <p><strong>Distractor8: </strong>Purple</p>
+        <p><strong>Distractor9: </strong>Brown</p>
+    </div>
+
+
+
+    <p><b>7.Instruction manual</b> </p>
+    <div class="video-container">
+        <div class="video-item">
+            <video controls muted loop autoplay>
+                <source src="{{ url_for('static', filename='examples/videomme/GOOD REPLICA vs REAL Nike Air Force 1 How To Spot Fake (AAA) Nike AF1.mp4') }}" type="video/mp4">
+            </video>
+        </div>
+        <div class="image-item good-image">
+            <p><strong>Good image</strong></p>
+            <p class="text-description">
+                Reason: Clear texture.
+            </p>
+            <img src="{{ url_for('static', filename='examples/videomme/Instruction_manual_good.png') }}" alt="Good Image" />
+        </div>
+        <div class="image-item bad-image">
+            <p><strong>Bad image</strong></p>
+            <p class="text-description">
+                Reason: Texture blur.
+            </p>
+            <img src="{{ url_for('static', filename='examples/videomme/Instruction_manual_bad.png') }}" alt="Bad Image" />
+        </div>
+    </div>
+
+    <div class="text-container">
+        <p><strong>Question: </strong>Based on the video above, explain why the shoes in the picture are fake.</p>
+        <p><strong>Question type: </strong>Instruction manual</p>
+        <p><strong>Granularity: </strong> Video clips</p>
+        <p><strong>Answer location: </strong>2:44-2:55</p>
+        <p><strong>Answer: </strong>The fake stitching on the heel is sparse and irregular at the edges.</p>
+        <p><strong>Distractor1: </strong>White</p>
+        <p><strong>Distractor2: </strong>The fake stitching on the heel is sparse and irregular in the toe area.</p>
+        <p><strong>Distractor3: </strong>The fake stitching on the heel is smooth and evenly spaced at the edges.</p>
+        <p><strong>Distractor4: </strong>The fake stitching on the heel is very dense and highly regular at the edges.</p>
+        <p><strong>Distractor5: </strong>The fake stitching on the heel is sparse, irregular at the edges, and shows signs of wear.</p>
+        <p><strong>Distractor6: </strong>The fake stitching on the heel is irregular at the edges.</p>
+        <p><strong>Distractor7: </strong>The fake stitching on the heel is dense and regular at the edges, unlike the fake stitching on the toe.</p>
+        <p><strong>Distractor8: </strong>The fake stitching on the heel is sparse and irregular at the top, but dense at the bottom edges.</p>
+        <p><strong>Distractor9: </strong>The fake stitching on the heel is unevenly spaced and jagged at the edges.</p>
+    </div>
+
+    <p><b>8.Keyframe extraction</b> </p>
+    <div class="video-container">
+        <div class="video-item">
+            <video controls muted loop autoplay>
+                <source src="{{ url_for('static', filename='examples/videomme/x8zGsWuu-e0.mp4') }}" type="video/mp4">
+            </video>
+        </div>
+        <div class="image-item good-image">
+            <p><strong>Good image</strong></p>
+            <p class="text-description">
+                Reason: Clear texture.
+            </p>
+            <img src="{{ url_for('static', filename='examples/videomme/exist_good.png') }}" alt="Good Image" />
+        </div>
+    </div>
+
+    <div class="text-container">
+        <p><strong>Question: </strong>Find the segment in the video where the person wears clothes from the picture.</p>
+        <p><strong>Question type: </strong>Keyframe extraction</p>
+        <p><strong>Granularity: </strong> Video clips</p>
+        <p><strong>Answer location: </strong>8:20 - 8:50</p>
+        <p><strong>Answer: </strong>8:20 - 8:50</p>
+        <p><strong>Distractor1: </strong>4:50 - 5:20</p>
+        <p><strong>Distractor2: </strong>5:20 - 5:50</p>
+        <p><strong>Distractor3: </strong>5:50 - 6:20</p>
+        <p><strong>Distractor4: </strong>6:20 - 6:50</p>
+        <p><strong>Distractor5: </strong>6:50 - 7:20</p>
+        <p><strong>Distractor6: </strong>7:20 - 7:50</p>
+        <p><strong>Distractor7: </strong>7:50 - 8:20</p>
+        <p><strong>Distractor8: </strong>8:50 - 9:20</p>
+        <p><strong>Distractor9: </strong>9:20 - 9:50</p>
+    </div>
+
+    <p><b>9.Counting</b> </p>
+    <div class="video-container">
+        <div class="video-item">
+            <video controls muted loop autoplay>
+                <source src="{{ url_for('static', filename='examples/videomme/IRDp5HcZyVA.mp4') }}" type="video/mp4">
+            </video>
+        </div>
+        <div class="image-item good-image">
+            <p><strong>Good image</strong></p>
+            <p class="text-description">
+                Reason: Clear texture, there are many kinds of black shoes in the video.
+            </p>
+            <img src="{{ url_for('static', filename='examples/videomme/Counting_good.png') }}" alt="Good Image" />
+        </div>
+    </div>
+
+    <div class="text-container">
+        <p><strong>Question: </strong>How many times did the person wearing the shoes in the picture run back and forth in the video?</p>
+        <p><strong>Question type: </strong>Keyframe extraction</p>
+        <p><strong>Granularity: </strong>Whole Video</p>
+        <p><strong>Answer location: </strong>Whole Video</p>
+        <p><strong>Answer: </strong>4</p>
+        <p><strong>Distractor1: </strong>1</p>
+        <p><strong>Distractor2: </strong>2</p>
+        <p><strong>Distractor3: </strong>3</p>
+        <p><strong>Distractor4: </strong>5</p>
+        <p><strong>Distractor5: </strong>6</p>
+        <p><strong>Distractor6: </strong>7</p>
+        <p><strong>Distractor7: </strong>8</p>
+        <p><strong>Distractor8: </strong>9</p>
+        <p><strong>Distractor9: </strong>10</p>
+    </div>
+
+
+
+    <p><b>11.Constrained OCR</b> </p>
+    <div class="video-container">
+        <div class="video-item">
+            <video controls muted loop autoplay>
+                <source src="{{ url_for('static', filename='examples/videomme/3fQxvz4ENDg.mp4') }}" type="video/mp4">
+            </video>
+        </div>
+        <div class="image-item good-image">
+            <p><strong>Good image</strong></p>
+            <p class="text-description">
+                Reason: The icon color is different from the video.
+            </p>
+            <img src="{{ url_for('static', filename='examples/videomme/Constrained_OCR_good.png') }}" alt="Good Image" />
+        </div>
+    </div>
+
+    <div class="text-container">
+        <p><strong>Question: </strong>What is the font next to the graphic in the video?</p>
+        <p><strong>Question type: </strong>Constrained OCR</p>
+        <p><strong>Granularity: </strong>Video frame</p>
+        <p><strong>Answer location: </strong>3:45</p>
+        <p><strong>Answer: </strong>DALL·E 2</p>
+        <p><strong>Distractor1: </strong>ChatGPT</p>
+        <p><strong>Distractor2: </strong>OpenAI</p>
+        <p><strong>Distractor3: </strong>SORA</p>
+        <p><strong>Distractor4: </strong>Gpt3</p>
+        <p><strong>Distractor5: </strong>Qwen</p>
+        <p><strong>Distractor6: </strong>MiniCPM</p>
+        <p><strong>Distractor7: </strong>ChatGLM</p>
+        <p><strong>Distractor8: </strong>Kimi</p>
+        <p><strong>Distractor9: </strong>Claude</p>
+    </div>
+
+</div>
+
+</body>
+</html>
+
+

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>欢迎页</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="welcome.css">
+    <style>
+        .text-paragraph {
+        max-width: 65%; 
+        word-wrap: break-word; 
+        overflow-wrap: break-word;
+        line-height: 1.8;
+        }
+    </style>
+    
+</head>
+
+<body>
+    <!-- <div style="position: fixed; top: 5%; right: 2%; ">
+        <form action="{{ url_for('pre_anno') }}" method="post">
+            <button 
+            type="submit" name="tiral" 
+            style=" width: 200px; height: 
+            50px; font-size: 18px;">预标注试验</button>
+            <br>
+        </form>
+    </div> -->
+
+    <div style="position: fixed; top: 20%; right: 2%; ">
+        <form action="{{ url_for('login') }}" method="post">
+            <fieldset>
+            <legend>登录</legend>
+            <br>
+            用户名: <input type="text" name="username"><br><br>
+            <input type="submit" style="width: 100px; height: 40px; font-size: 18px;"
+            value="登录">
+            <br>
+            </fieldset>
+        </form>
+    </div>
+
+
+    <div style="position: fixed; top: 45%; right: 2%; ">
+        <form action="{{ url_for('validate') }}" method="post">
+            <fieldset>
+                <legend>验证</legend>
+                <br>
+                管理员名称: <input type="text" name="admin"><br><br>
+                <input type="submit" style="width: 100px; height: 40px; font-size: 18px;"
+                value="确认">
+                <br>
+                </fieldset>
+        </form>
+    </div>
+
+
+    <div style="position: fixed; bottom: 1%; right: 10%; ">
+        <form action="{{ url_for('welcome') }}" method="post">
+            <input type="hidden" name="language" value="zh">
+            <button 
+            type="submit" name="lan" value="zh"
+            style=" width: 100px; height: 
+            40px; font-size: 16px;">简体中文</button>
+        </form>
+    </div>
+
+    <div style="position: fixed; bottom: 1%; right: 1%; ">
+        <form action="{{ url_for('welcome') }}" method="post">
+            <input type="hidden" name="lang" value="en">
+            <button 
+            type="submit" name="lan" value="en"
+            style=" width: 100px; height: 
+            40px; font-size: 16px;">English</button>
+        </form>
+    </div>
+
+    
+    <div class="text-paragraph">
+        {{ before_start_anno | safe }}
+    </div>
+
+
+    <div class="text-paragraph">
+        {{ visual_def | safe}}
+    </div>
+
+    <div class="video-grid">
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/visual_good_1.mp4') }}" type="video/mp4">
+                
+            </video>
+            <p class="video-title">好</p>
+        </div>
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/visual_avg_1.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title"> 一般: 视频边缘有些许模糊，对应错误点a，比较影响视频质量</p>
+        </div>
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/visual_avg_2.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title"> 一般: 视频整体分辨率低，不清楚，对应错误点b，比较影响视频质量 </p>
+        </div>
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/visual_bad_1.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">差：视频整体不清晰且明显扭曲，对应错误点b，d，非常影响视频质量</p>
+        </div>
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/visual_bad_2.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">差：视频的整体颜色、亮度和背景明灭闪烁严重，对应错误点e和f，非常影响视频质量</p>
+        </div>
+
+    </div>
+    
+
+    <div class="text-paragraph">
+        <br>
+        {{ object_def | safe}}
+    </div> 
+
+    <div class="video-grid">
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/object_good_1.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">好</p>
+        </div>
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/object_avg_1.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">一般：视频中主要的人物是一致的，但是精灵手中拿的东西在不断变化，对应错误点b，比较影响视频质量</p>
+        </div>
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/object_avg_2.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">一般：视频中小女孩是一致的，但是蝴蝶突然出现后消失，对应错误点a，比较影响视频质量</p>
+        </div>
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/object_bad_1.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">差：酒瓶的形态和大小在一直在不断变化，而且桌上有酒杯突然出现和消失，对应错误点a,b，非常影响视频质量</p>
+        </div>
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/object_bad_2.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">差：视频中男人的脸和身体一直在突变，
+                而且男人的右侧有个像外星人一样的东西突然出现和消失，对应错误点a,，非常影响视频质量</p>
+        </div>
+    </div>
+    </div>
+    <br>
+    <br>
+    <br>
+
+    <div class="text-paragraph">
+        <br>
+        {{ dynamic_def | safe}}
+    </div>
+    <div class="video-grid">
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/dynamic_good_1.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">表现好的例子，尽管该视频的“动作流畅度”不好</p>
+        </div>
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/dynamic_avg_1.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">一般：视频不是静止，但是动态程度很小</p>
+        </div>
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/dynamic_avg_2.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">一般：视频不是静止，但是动态程度很小</p>
+        </div>
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/dynamic_bad_1.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">差：视频几乎是静止的</p>
+        </div>
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/dynamic_bad_2.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">差：视频几乎是静止的</p>
+        </div>
+    </div>
+
+
+    <div class="text-paragraph">
+        <br>
+        {{ motion_def | safe}}
+    </div>
+
+    <div class="video-grid">
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/motion_good_1.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">好</p>
+        </div>
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/motion_avg_2.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">一般: 视频前半部分猫的动作有卡顿，对应错误点a，比较影响视频质量</p>
+        </div>
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/motion_avg_1.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">一般: 人物的动作导致背景有些许变形，对应错误点b，比较影响视频质量</p>
+        </div>
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/motion_bad_1.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">差：人物的运动卡顿十分不流畅，并且导致了身体的变形，对应错误点a和b，非常影响视频质量</p>
+        </div>
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/motion_bad_2.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">差：人物的跳跃动作不流畅，导致腿部的变形和断位，对应错误点b和c，非常影响视频质量</p>
+        </div>
+    </div>
+
+
+    <div class="text-paragraph">
+        <br>
+        {{ align_def | safe}}
+    </div>
+
+    <div class="video-grid">
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/alignment_good_1.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">好</p>
+        </div>
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/alignment_avg_1.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">一般：文本提示词中小狗举的牌子上有标语“NVIDIA ROCKS”，但是视频中标语没有正确显示，
+                对应错误点d，比较影响视频质量</p>
+        </div>
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/alignment_avg_2.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">一般：文本提示词中提到了被烟雾和火焰包围的骷髅，但是视频中没有火焰，
+                对应错误点a，比较影响视频质量</p>
+        </div>
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/alignment_bad_1.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">差：文本提示词中是“老虎从电视机中出来”，但是视频中没有老虎，对应错误点a，
+                非常影响视频质量
+            </p>
+        </div>
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/alignment_bad_2.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">差：文本提示词中是“一位美丽的播音员”，但是视频内容完全不符，对应错误点a，
+                非常影响视频质量
+            </p>
+        </div>
+    </div>
+    
+    <div class="text-paragraph">
+        <br>
+        {{ factual_def | safe }}
+    </div>
+
+    <div class="video-grid">
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/factual_good_1.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">好</p>
+        </div>
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/factual_avg_1.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">一般：视频下方的一个梨像是悬浮在空中，对应错误点b，比较影响视频质量
+            </p>
+        </div>
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/factual_bad_1.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">差：视频中植物叶子上有一张脸，不符合常识，对应错误点a，非常影响视频质量
+            </p>
+        </div>
+        <div class="video-item">
+            <video width="256" height="256" controls muted loop>
+                <source src="{{ url_for('static', filename='examples/factual_bad_2.mp4') }}" type="video/mp4">
+            </video>
+            <p class="video-title">差：视频中倒出的饮料的流动是反常的，不符合常识，对应错误点c，非常影响视频质量
+            </p>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
+
+
