@@ -4,6 +4,24 @@
     <title>Annotating Videos</title>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="/videos/display.css"> <!-- 引入外部CSS文件 -->
+    <style>
+        /* 添加一些基本样式 */
+        .error {
+            color: red;
+            display: none;
+        }
+        .submit-button-container {
+            margin-top: 20px;
+        }
+        .button_submit {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .checkbox-group div {
+            margin-bottom: 5px;
+        }
+    </style>
 </head>
 
 <body>
@@ -23,24 +41,15 @@
                 <source src="{{ url_for('static', filename=video) }}" type="video/mp4">
                 您的浏览器不支持视频标签。
             </video>
-
-            <!-- 图片上传和预览区域 -->
-            <div class="upload-section">
-                <div id="image-upload-container" tabindex="0">
-                    <label for="image-upload" id="image-upload-label">点击上传图片或粘贴图片</label>
-                    <!-- 关联到主表单的 form 属性 -->
-                    <input type="file" id="image-upload" name="image" accept="image/*" form="submit-form" required>
-                    <div id="image-preview">
-                        <!-- 图片预览区域 -->
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- 右侧栏 -->
         <div class="right-column">
+            <!-- 调试信息（可选，建议测试后移除） -->
+            <!-- <p>已选择的问题类型: {{ selected_question_types }}</p> -->
+
             <!-- 提交表单 -->
-            <form id="submit-form" action="{{ url_for('submit') }}" method="post" enctype="multipart/form-data" class="main-form">
+            <form id="submit-form" action="{{ url_for('submit') }}" method="post" enctype="multipart/form-data" class="main-form" onsubmit="return validateForm()">
                 <!-- 隐藏字段 -->
                 <input type="hidden" name="source_page" value="display_type">
                 <input type="hidden" name="video" value="{{ video }}">
@@ -48,76 +57,72 @@
 
                 <!-- 问题输入区域 -->
                 <div class="input-fields">
-                    <label for="question">Question:</label>
-                    <textarea id="question" name="question" rows="2" required></textarea>
-                </div>
-                <div class="input-fields">
                     <fieldset>
-                        <legend>Question Type:</legend>
+                        <legend>Question Type:<span class="error" id="question-type-error">请选择至少一个问题类型。</span></legend>
                         <div class="checkbox-group">
                             <div>
                                 <label>
-                                    <input type="checkbox" name="question_type" value="Summary">
+                                    <input type="checkbox" name="question_type" value="Summary" {% if 'Summary' in selected_question_types %} checked {% endif %}>
                                     Summary
                                 </label>
                             </div>
                             <div>
                                 <label>
-                                    <input type="checkbox" name="question_type" value="Spatial relationship">
+                                    <input type="checkbox" name="question_type" value="Spatial relationship" {% if 'Spatial relationship' in selected_question_types %} checked {% endif %}>
                                     Spatial relationship
                                 </label>
                             </div>
                             <div>
                                 <label>
-                                    <input type="checkbox" name="question_type" value="Existence">
+                                    <input type="checkbox" name="question_type" value="Existence" {% if 'Existence' in selected_question_types %} checked {% endif %}>
                                     Existence
                                 </label>
                             </div>
                             <div>
                                 <label>
-                                    <input type="checkbox" name="question_type" value="Reverse Existence">
+                                    <input type="checkbox" name="question_type" value="Reverse Existence" {% if 'Reverse Existence' in selected_question_types %} checked {% endif %}>
                                     Reverse Existence
                                 </label>
                             </div>
                             <div>
                                 <label>
-                                    <input type="checkbox" name="question_type" value="NLI">
+                                    <input type="checkbox" name="question_type" value="NLI" {% if 'NLI' in selected_question_types %} checked {% endif %}>
                                     NLI
                                 </label>
                             </div>
                             <div>
                                 <label>
-                                    <input type="checkbox" name="question_type" value="Details Event">
+                                    <input type="checkbox" name="question_type" value="Details Event" {% if 'Details Event' in selected_question_types %} checked {% endif %}>
                                     Details Event
                                 </label>
                             </div>
                             <div>
                                 <label>
-                                    <input type="checkbox" name="question_type" value="Instruction manual">
+                                    <input type="checkbox" name="question_type" value="Instruction manual" {% if 'Instruction manual' in selected_question_types %} checked {% endif %}>
                                     Instruction manual
                                 </label>
                             </div>
                             <div>
                                 <label>
-                                    <input type="checkbox" name="question_type" value="Keyframe extraction">
+                                    <input type="checkbox" name="question_type" value="Keyframe extraction" {% if 'Keyframe extraction' in selected_question_types %} checked {% endif %}>
                                     Keyframe extraction
                                 </label>
                             </div>
                             <div>
                                 <label>
-                                    <input type="checkbox" name="question_type" value="Counting">
+                                    <input type="checkbox" name="question_type" value="Counting" {% if 'Counting' in selected_question_types %} checked {% endif %}>
                                     Counting
                                 </label>
                             </div>
                             <div>
                                 <label>
-                                    <input type="checkbox" name="question_type" value="Space-time computing">
+                                    <input type="checkbox" name="question_type" value="Space-time computing" {% if 'Space-time computing' in selected_question_types %} checked {% endif %}>
                                     Space-time computing
                                 </label>
                             </div>
                             <div>
                                 <label>
-                                    <input type="checkbox" name="question_type" value="Constrained OCR">
+                                    <input type="checkbox" name="question_type" value="Constrained OCR" {% if 'Constrained OCR' in selected_question_types %} checked {% endif %}>
                                     Constrained OCR
                                 </label>
                             </div>
@@ -125,20 +130,6 @@
                         </div>
                     </fieldset>
                 </div>
-
-                <!-- 修改后的 Granularity 下拉选择框 -->
-                <label for="granularity">Granularity:</label>
-                <select id="granularity" name="granularity" required>
-                    <option value="" disabled selected>Please select the video granularity</option>
-                    <option value="Video Frame">Video Frame</option>
-                    <option value="Video Clip">Video Clip</option>
-                    <option value="Whole Video">Whole Video</option>
-                    <!-- 根据需要添加更多选项 -->
-                </select>
-
-                <label for="answer_location">Answer_location:</label>
-                <input type="text" id="answer_location" name="answer_location" required>
-
 
                 <!-- 提交按钮 -->
                 <div class="submit-button-container">
@@ -152,7 +143,8 @@
                 <input type="hidden" name="video" value="{{ video }}">
                 <input type="hidden" name="current_idx" value="{{ current_idx }}">
                 <input type="hidden" name="_is_val" value="{{ _is_val }}">
-                
+                <input type="hidden" name="source_page" value="display_type"> <!-- 添加此行 -->
+
                 <p><b>Current progress</b>: <br>{{ current_idx+1 }}/{{ end_index+1 }}</p>
                 <label for="next_idx">Turn to:</label>
                 <input type="number" name="next_idx" placeholder="123" class="idx_input_box" min="1" max="{{ end_index + 1 }}" required>
@@ -165,6 +157,7 @@
                 <form action="{{ url_for('navigate_main') }}" method="post" class="button-form">
                     <input type="hidden" name="current_idx" value="{{ current_idx }}">
                     <input type="hidden" name="direction" value="last">
+                    <input type="hidden" name="source_page" value="display_type"> <!-- 添加此行 -->
                     <button type="submit" class="button_previous">上一个</button>
                 </form>
 
@@ -172,6 +165,7 @@
                 <form action="{{ url_for('navigate_main') }}" method="post" class="button-form">
                     <input type="hidden" name="current_idx" value="{{ current_idx }}">
                     <input type="hidden" name="direction" value="next">
+                    <input type="hidden" name="source_page" value="display_type"> <!-- 添加此行 -->
                     <button type="submit" class="button_next">下一个</button>
                 </form>
             </div>
@@ -188,5 +182,31 @@
             {% endwith %}
         </div>
     </div>
+
+    <!-- 添加JavaScript进行表单验证 -->
+    <script>
+        function validateForm() {
+            const checkboxes = document.querySelectorAll('input[name="question_type"]:checked');
+            const error = document.getElementById('question-type-error');
+            if (checkboxes.length === 0) {
+                error.style.display = 'inline';
+                return false;
+            } else {
+                error.style.display = 'none';
+                return true;
+            }
+        }
+
+        // 在用户选择复选框时隐藏错误信息
+        const checkboxes = document.querySelectorAll('input[name="question_type"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const error = document.getElementById('question-type-error');
+                if (document.querySelectorAll('input[name="question_type"]:checked').length > 0) {
+                    error.style.display = 'none';
+                }
+            });
+        });
+    </script>
 </body>
 </html>

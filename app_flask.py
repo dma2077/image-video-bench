@@ -9,7 +9,9 @@ import uuid
 import markdown
 
 # ======== static and global variables ========
-static_root_path = "/map-vepfs/dehua/data/image-video-bench/image-video-bench/videos"
+#static_root_path = "/map-vepfs/dehua/data/image-video-bench/image-video-bench/videos"
+static_root_path = "E:/Code/image-video-bench/videos"
+
 
 app = Flask(__name__, static_folder=static_root_path)
 app.secret_key = os.urandom(24)
@@ -24,12 +26,21 @@ login_manager.login_view = 'login'
 
 local_video_dir = "./examples/youtube_0518"
 res_dir = "./res/res_current"
+get_image_root = "./upload_images"
 text_files_dir = "text_files"
 text_en_path = f"./{text_files_dir}/text_en_display.jsonl"
 text_zh_path = f"./{text_files_dir}/text_zh_display.jsonl"
 user_info_path = f"./{text_files_dir}/user_info.json"
+user_question_type_info_path = f"./{text_files_dir}/user_question_type_info.json"
+
 reported_problem_log = f"./{text_files_dir}/problem_reported.json"
 sampled_id_file = f"./{text_files_dir}/sampled_id_youtube_0518.json"
+
+# 配置上传文件夹和允许的扩展名
+UPLOAD_FOLDER = './videos/upload_images'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
 # ======== preparing video-ids and videos  =========
@@ -81,16 +92,14 @@ for fname in subscore_zh_files:
 
 # ======== user info ========
 current_user_dict = {}
-if os.path.exists(user_info_path):
-    with open(user_info_path, 'r', encoding='utf-8') as f:
-        user_data = json.load(f)
-    users = list(user_data.keys())
-    print("users ", users)
-else:
-    with open(user_info_path, "w", encoding='utf-8') as f:
-        json.dump({}, f, indent=4, ensure_ascii=False)
-    user_data = {}
-    users = []
+with open(user_info_path, 'r', encoding='utf-8') as f:
+    user_data = json.load(f)
+users = list(user_data.keys())
+print("users ", users)
+
+with open(user_question_type_info_path, 'r', encoding='utf-8') as f:
+    user_question_type_data = json.load(f)
+
 
 s_idx_user_mapping = {}
 for user in users:
@@ -180,7 +189,7 @@ def login_method_2():
     ans_path = f""
     if username in users:
         print("user ", username)
-        curr_user_dict = user_data.get(username)
+        curr_user_dict = user_question_type_data.get(username)
         ans_path = f"{res_dir}/ans_{username}.jsonl"
     else:
         return redirect(url_for('welcome'))
@@ -188,12 +197,70 @@ def login_method_2():
     user = User(username)
     login_user(user)
 
-    curr_user_dict = user_data.get(username)
+    curr_user_dict = user_question_type_data.get(username)
     session['username'] = curr_user_dict.get("username", username)
     session['s_idx'] = curr_user_dict.get('s_idx', 0)
     session['e_idx'] = curr_user_dict.get('e_idx', len(video_id_list)-1)
     session['current_idx'] = curr_user_dict.get('current_idx', 0)
     return redirect(url_for('display_type'))
+
+
+def load_questions_type(question_type_file, vid_name):
+    type_data_list = []
+    if os.path.exists(question_type_file):
+        with open(question_type_file, 'r', encoding='utf-8') as f:
+            for line in f:
+                try:
+                    d = json.loads(line)
+                    type_data_list.append(d)
+                except json.JSONDecodeError:
+                    continue
+    current_question_types = {}
+    for type_data in type_data_list:
+        if vid_name in type_data.keys():
+            current_question_types = type_data[vid_name]
+    return current_question_types
+
+def load_annotation(annotation_file, vid_name):
+    if not os.path.exists(annotation_file):
+        return {
+            'image': '',
+            'question': '',
+            'question_type': '',
+            'granularity': '',
+            'answer': '',
+            'answer_location': '',
+            'distractors': [''] * 9
+        }
+
+    with open(annotation_file, 'r', encoding='utf-8') as f:
+        for line in f:
+            try:
+                annotation = json.loads(line)
+                if annotation.get('video_name') == vid_name:
+                    return {
+                        'image': get_image_root + "/" + annotation.get('image_name', ''),
+                        'question': annotation.get('question', ''),
+                        'question_type': annotation.get('question_type', ''),
+                        'granularity': annotation.get('granularity', ''),
+                        'answer': annotation.get('answer', ''),
+                        'answer_location': annotation.get('answer_location', ''),
+                        'distractors': annotation.get('distractors', [''] * 9)
+                    }
+            except json.JSONDecodeError:
+                continue
+
+    return {
+        'image': '',
+        'question': '',
+        'question_type': '',
+        'granularity': '',
+        'answer': '',
+        'answer_location': '',
+        'distractors': [''] * 9
+    }
+
+
 
 @app.route(f'{subpath}annotating', methods=['GET', 'POST'])
 def display():
@@ -207,6 +274,7 @@ def display():
         flash("请先登录。")
         return redirect(url_for('welcome'))
     ans_file = f"{res_dir}/ans_{username}.jsonl"
+    q_file = f"{res_dir}/q_{username}.jsonl"
     current_idx = int(session.get("current_idx", 0))
     print("curr_idx in display ", current_idx)
     
@@ -217,39 +285,14 @@ def display():
         print("video name in display ", f"{vid_name}.mp4")
         
         video = f"{local_video_dir}/{videos_curr_user[current_idx]}"
-        print(video)
-        answer_data_dict = {}
-        if os.path.exists(ans_file):
-            with open(ans_file, 'r', encoding='utf-8') as f:
-                for line in f:
-                    try:
-                        d = json.loads(line)
-                        answer_data_dict.update(d)
-                    except json.JSONDecodeError:
-                        continue
-
-        answered_vid_list = list(answer_data_dict.keys())
-                
+        current_annotation = load_annotation(ans_file, vid_name)
+        print(current_annotation)
+        current_question_types = load_questions_type(q_file, vid_name)
         
-        current_answers = []
-        if vid_name in answered_vid_list:
-            current_answers = answer_data_dict[vid_name]
-        
-        # print("answered_vid_list",answered_vid_list)
-        print("current_answers (list) ", current_answers)
-
         html_file = "display.html"
         subscore_def = subscore_def_en_list
         before_start_anno = before_start
         prompt = text_prompts_en[current_idx].get("text", "")
-        language = session.get("language", "en")
-        print("language in display ", language)
-
-        if language == "zh":
-            html_file = "zh/display_zh.html"
-            subscore_def = subscore_def_zh_list
-            before_start_anno = before_start_zh
-            prompt = text_prompts_zh[current_idx].get("text", "")
 
         return render_template(html_file, 
             before_start_anno=before_start_anno,
@@ -260,8 +303,8 @@ def display():
             vid_name=vid_name,
             video=video,
             text_prompt=prompt,
-            answered_vid_list=answered_vid_list,
-            current_answers=current_answers,
+            annotation=current_annotation,
+            selected_question_types=current_question_types,
             _is_val=0)  # 传递 end_index 给模板
 
     else:
@@ -285,7 +328,7 @@ def display_type():
     if not username:
         flash("请先登录。")
         return redirect(url_for('welcome'))
-    ans_file = f"{res_dir}/ans_{username}.jsonl"
+    question_type_file = f"{res_dir}/q_{username}.jsonl"
     current_idx = int(session.get("current_idx", 0))
     print("curr_idx in display ", current_idx)
     
@@ -298,8 +341,8 @@ def display_type():
         video = f"{local_video_dir}/{videos_curr_user[current_idx]}"
         print(video)
         answer_data_dict = {}
-        if os.path.exists(ans_file):
-            with open(ans_file, 'r', encoding='utf-8') as f:
+        if os.path.exists(question_type_file):
+            with open(question_type_file, 'r', encoding='utf-8') as f:
                 for line in f:
                     try:
                         d = json.loads(line)
@@ -308,8 +351,7 @@ def display_type():
                         continue
 
         answered_vid_list = list(answer_data_dict.keys())
-                
-        
+    
         current_answers = []
         if vid_name in answered_vid_list:
             current_answers = answer_data_dict[vid_name]
@@ -324,12 +366,6 @@ def display_type():
         language = session.get("language", "en")
         print("language in display ", language)
 
-        if language == "zh":
-            html_file = "zh/display_zh.html"
-            subscore_def = subscore_def_zh_list
-            before_start_anno = before_start_zh
-            prompt = text_prompts_zh[current_idx].get("text", "")
-
         return render_template(html_file, 
             before_start_anno=before_start_anno,
             subscore_def=subscore_def,
@@ -340,18 +376,18 @@ def display_type():
             video=video,
             text_prompt=prompt,
             answered_vid_list=answered_vid_list,
-            current_answers=current_answers,
+            selected_question_types=current_answers,
             _is_val=0)  # 传递 end_index 给模板
 
     else:
         current_idx = 0
         session["current_idx"] = current_idx
-        user_data[username]['current_idx'] = session['current_idx']
+        user_question_type_data[username]['current_idx'] = session['current_idx']
         with open(user_info_path, "w", encoding='utf-8') as file:
-            json.dump(user_data, file, indent=4, ensure_ascii=False)
+            json.dump(user_question_type_data, file, indent=4, ensure_ascii=False)
 
         print("curr_idx in display ", current_idx)
-        return redirect(url_for('display'))
+        return redirect(url_for('display_type'))
 
 
 @app.route(f'{subpath}navigate_main', methods=['POST'])
@@ -362,6 +398,7 @@ def navigate_main():
     direction = request.form.get('direction', '')
     current_idx = int(request.form.get('current_idx', 0))
     source_page = request.form.get('source_page')
+    print(source_page)
     if direction == 'last':
         if current_idx > 0:
             current_idx -= 1
@@ -382,15 +419,29 @@ def navigate_main():
     return redirect(url_for('display'))
 
 
-# 配置上传文件夹和允许的扩展名
-UPLOAD_FOLDER = './res/upload_images'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+
+def submit_success(username, current_idx, user_data, user_info_path, url_name):
+    session['current_idx'] = current_idx + 1
+    session.modified = True
+
+    print("idx after submission ", session.get("current_idx", 0))
+
+    # 更新用户数据
+    if username not in user_data:
+        user_data[username] = {}
+
+    user_data[username]['current_idx'] = session['current_idx']
+
+    with open(user_info_path, "w", encoding='utf-8') as file:
+        json.dump(user_data, file, indent=4, ensure_ascii=False)
+    print("*"*100)
+    flash("提交成功！")
+    print("*"*100)
 
 
 @app.route('/submit', methods=['POST'])
@@ -402,6 +453,8 @@ def submit():
         return redirect(url_for('welcome'))
 
     ans_file = f"{res_dir}/ans_{username}.jsonl"
+    question_type_file = f"{res_dir}/q_{username}.jsonl"
+    
     
     action = request.form.get('action', '')
     s_idx = session.get('s_idx', 0)
@@ -429,6 +482,38 @@ def submit():
             return redirect(url_for('display'))
 
     elif action == 'submit':
+        if source_page == "display_type":
+            current_idx = int(request.form.get('current_idx', 0))
+            question_type = request.form.getlist('question_type')
+            vid_name = os.path.splitext(os.path.basename(request.form.get('video', '')))[0]
+            
+            # 加载现有的 question_type 数据
+            answer_data_dict = {}
+            if os.path.exists(question_type_file):
+                with open(question_type_file, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        try:
+                            d = json.loads(line)
+                            answer_data_dict.update(d)
+                        except json.JSONDecodeError:
+                            continue
+
+            # 更新当前视频的 question_type
+            answer_data_dict[vid_name] = question_type
+
+            # 将更新后的数据写回 JSONL 文件（覆盖原文件）
+            with open(question_type_file, 'w', encoding='utf-8') as f:
+                for vid, types in answer_data_dict.items():
+                    json_line = json.dumps({vid: types}, ensure_ascii=False)
+                    f.write(json_line + '\n')
+
+            # 更新当前索引
+            session['current_idx'] = current_idx + 1
+            session.modified = True
+
+            flash("Question Type 已成功更新。")
+            return redirect(url_for("display_type"))
+        
         # 获取并处理表单数据
         current_idx = int(request.form.get('current_idx', 0))
         vid_name = request.form.get('video', '').split("/")[-1].split(".")[0]
@@ -466,28 +551,13 @@ def submit():
             "answer_location": request.form.get('answer_location', ''),
             "distractors": [request.form.get(f'distractor{i}', '') for i in range(1, 10)]
         }
-
+        
         # 保存到答案文件
         with open(ans_file, "a+", encoding='utf-8') as file:
             json.dump(answer_dict, file, ensure_ascii=False)
             file.write('\n')
-
-        # 更新当前索引
-        session['current_idx'] = current_idx + 1
-        session.modified = True
-
-        print("idx after submission ", session.get("current_idx", 0))
-
-        # 更新用户数据
-        if username not in user_data:
-            user_data[username] = {}
-
-        user_data[username]['current_idx'] = session['current_idx']
-
-        with open(user_info_path, "w", encoding='utf-8') as file:
-            json.dump(user_data, file, indent=4, ensure_ascii=False)
-
-        flash("提交成功！")
+            
+        submit_success(username, current_idx, user_data, user_info_path, 'display')
         return redirect(url_for('display'))
 
     else:

@@ -239,6 +239,20 @@ body, html {
     border-radius: 4px;
 }
 
+/* Add this to make required options bold */
+.required {
+    font-weight: bold;
+    color: green
+}
+
+/* Optional: Style the '*' to make it more noticeable */
+.required::after {
+    content: "*";
+    color: red; /* Optional: Change color as needed */
+    margin-left: 4px; /* Optional: Add some spacing */
+}
+
+
 /* 响应式设计 */
 @media (max-width: 1200px) {
     .container {
