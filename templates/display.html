@@ -52,11 +52,13 @@
         <!-- 右侧栏 -->
         <div class="right-column">
             <!-- 提交表单 -->
-            <form id="submit-form" action="{{ url_for('submit', video=video, idx=current_idx) }}" method="post" enctype="multipart/form-data" class="main-form">
+            <form id="submit-form" action="{{ url_for('submit') }}" method="post" enctype="multipart/form-data" class="main-form">
                 <!-- 隐藏字段 -->
                 <input type="hidden" name="source_page" value="display">
                 <input type="hidden" name="video" value="{{ video }}">
                 <input type="hidden" name="current_idx" value="{{ current_idx }}">
+                <input type="hidden" name="video_question_idx" value="{{ video_question_idx }}">
+                <input type="hidden" name="video_question_number" value="{{ annotations|length }}">
                 <input type="hidden" name="existing_image" value="{{ annotation.image }}">
 
                 <!-- 问题输入区域 -->
@@ -161,20 +163,30 @@
                     </div>
                 </div>
 
-                <!-- 提交按钮 -->
+                <!-- 提交按钮和复制、删除按钮 -->
                 <div class="submit-button-container">
+                    <!-- 删除按钮，跳过验证 -->
+                    <button type="submit" name="action" value="delete" class="button_delete" formnovalidate>删除</button>
+                    
+                    <!-- 提交按钮，保留验证 -->
                     <button type="submit" name="action" value="submit" class="button_submit">提交</button>
+                    
+                    <!-- 复制按钮，跳过验证 -->
+                    <button type="submit" name="action" value="copy" class="button_copy" formnovalidate>复制</button>
                 </div>
             </form>
 
             <!-- 跳转表单 -->
-            <form id="navigate-form" action="{{ url_for('display', video=video, idx=current_idx) }}" method="post" class="navigate-form">
+            <form id="navigate-form" action="{{ url_for('submit') }}"  method="post" class="navigate-form">
                 <!-- 隐藏字段 -->
                 <input type="hidden" name="video" value="{{ video }}">
                 <input type="hidden" name="current_idx" value="{{ current_idx }}">
-                <input type="hidden" name="_is_val" value="{{ _is_val }}">
+                <input type="hidden" name="video_question_idx" value="{{ video_question_idx }}">
+                <input type="hidden" name="video_question_number" value="{{ annotations|length }}">
+                <input type="hidden" name="source_page" value="display">
 
                 <p><b>Current progress</b>: <br>{{ current_idx + 1 }}/{{ end_index + 1 }}</p>
+                <p><b>Current progress of this video</b>: {{ video_question_idx + 1 }}/{{ annotations|length }}</p>
                 <label for="next_idx">Turn to:</label>
                 <input type="number" name="next_idx" placeholder="123" class="idx_input_box" min="1" max="{{ end_index + 1 }}" required>
                 <button type="submit" name="action" value="navigate" class="navigate-button">Enter</button>
@@ -185,6 +197,8 @@
                 <!-- 上一个按钮的表单 -->
                 <form action="{{ url_for('navigate_main') }}" method="post" class="button-form">
                     <input type="hidden" name="current_idx" value="{{ current_idx }}">
+                    <input type="hidden" name="video_question_idx" value="{{ video_question_idx }}">
+                    <input type="hidden" name="video_question_number" value="{{ annotations|length }}">
                     <input type="hidden" name="direction" value="last">
                     <button type="submit" class="button_previous">上一个</button>
                 </form>
@@ -192,6 +206,8 @@
                 <!-- 下一个按钮的表单 -->
                 <form action="{{ url_for('navigate_main') }}" method="post" class="button-form">
                     <input type="hidden" name="current_idx" value="{{ current_idx }}">
+                    <input type="hidden" name="video_question_idx" value="{{ video_question_idx }}">
+                    <input type="hidden" name="video_question_number" value="{{ annotations|length }}">
                     <input type="hidden" name="direction" value="next">
                     <button type="submit" class="button_next">下一个</button>
                 </form>

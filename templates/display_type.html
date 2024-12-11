@@ -131,9 +131,16 @@
                     </fieldset>
                 </div>
 
-                <!-- 提交按钮 -->
+                <!-- 提交按钮和复制、删除按钮 -->
                 <div class="submit-button-container">
+                    <!-- 删除按钮，跳过验证，设置为无效 -->
+                    <button type="submit" name="action" value="delete" class="button_delete" formnovalidate disabled>删除</button>
+                    
+                    <!-- 提交按钮，保留验证 -->
                     <button type="submit" name="action" value="submit" class="button_submit">提交</button>
+                    
+                    <!-- 复制按钮，跳过验证，设置为无效 -->
+                    <button type="submit" name="action" value="copy" class="button_copy" formnovalidate disabled>复制</button>
                 </div>
             </form>
 

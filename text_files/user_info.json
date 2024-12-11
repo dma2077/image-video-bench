@@ -3,7 +3,8 @@
         "username": "1",
         "s_idx": 0,
         "e_idx": 299,
-        "current_idx": 9
+        "current_idx": 10,
+        "video_question_idx": 0
     },
     "2": {
         "username": "2",

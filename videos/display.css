@@ -123,6 +123,14 @@ body, html {
     text-align: center;
     margin-top: 20px;
 }
+/* 禁用按钮的样式 */
+.button_submit:disabled,
+.button_delete:disabled,
+.button_copy:disabled {
+    background-color: #cccccc; /* 灰色背景 */
+    color: #666666; /* 灰色文本 */
+    cursor: not-allowed; /* 禁用状态的鼠标指针 */
+}
 
 .button_submit {
     padding: 10px 20px;
@@ -250,6 +258,40 @@ body, html {
     content: "*";
     color: red; /* Optional: Change color as needed */
     margin-left: 4px; /* Optional: Add some spacing */
+}
+
+.submit-button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.button_delete, .button_copy {
+    background-color: #f44336; /* 红色 */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.button_copy {
+    background-color: #4CAF50; /* 绿色 */
+}
+
+.button_submit {
+    background-color: #008CBA; /* 蓝色 */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.button_delete:hover, .button_copy:hover, .button_submit:hover {
+    opacity: 0.8;
 }
 
 
