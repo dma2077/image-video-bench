@@ -4,3 +4,9 @@ pre_anno/
 pre_anno_old/
 youtube_video_download_dep.jsonl
 sampled_youtube_video_id.txt
+sentence_embeddings_with_video_id.jsonl
+sampled_youtube_video.jsonl
+representative_video_ids_1100.csv
+representative_video_ids_1200.csv
+sample_video_ids_1222.txt
+youtube_downloads
