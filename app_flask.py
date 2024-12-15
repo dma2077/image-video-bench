@@ -32,7 +32,7 @@ user_info_path = f"./{text_files_dir}/user_info.json"
 user_question_type_info_path = f"./{text_files_dir}/user_question_type_info.json"
 
 reported_problem_log = f"./{text_files_dir}/problem_reported.json"
-sampled_id_file = f"./{text_files_dir}/sampled_youtube_video_id.json"
+sampled_id_file = f"./{text_files_dir}/sampled_videos_ids.json"
 
 # 配置上传文件夹和允许的扩展名
 UPLOAD_FOLDER = './videos/upload_images'
