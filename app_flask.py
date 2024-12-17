@@ -16,13 +16,13 @@ import uuid
 import markdown
 
 # ======== static and global variables ========
-static_root_path = "/map-vepfs/dehua/data/image-video-bench/image-video-bench/videos"
+static_root_path = "/Users/dehua/code/image-video-bench/videos"
 # static_root_path = "E:/Code/image-video-bench/videos"
 
 app = Flask(__name__, static_folder=static_root_path)
 app.secret_key = os.urandom(24)
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=100)
-PORT_NUM = 22002
+PORT_NUM = 22001
 subpath = "/image_video_bench/"
 
 login_manager = LoginManager()
@@ -732,6 +732,7 @@ def submit():
             if allowed_file(image.filename):
                 filename = secure_filename(image.filename)
                 unique_filename = f"{uuid.uuid4().hex}_{filename}"
+                unique_filename = f"{vid_name}_{video_question_idx}"
                 image_path = os.path.join(app.config["UPLOAD_FOLDER"], unique_filename)
                 image.save(image_path)
                 image_filename = unique_filename
@@ -796,4 +797,4 @@ def submit():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=PORT_NUM)
+    app.run(host="0.0.0.0", port=PORT_NUM, debug=False)

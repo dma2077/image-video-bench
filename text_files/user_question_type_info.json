@@ -3,7 +3,7 @@
         "username": "1",
         "s_idx": 0,
         "e_idx": 299,
-        "current_idx": 2
+        "current_idx": 0
     },
     "2": {
         "username": "2",
@@ -21,12 +21,6 @@
         "username": "4",
         "s_idx": 900,
         "e_idx": 1199,
-        "current_idx": 0
-    },
-    "5": {
-        "username": "5",
-        "s_idx": 1200,
-        "e_idx": 1499,
         "current_idx": 0
     }
 }
