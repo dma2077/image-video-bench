@@ -38,6 +38,11 @@ body, html {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.required {
+    color: red;
+    font-weight: bold; /* 可选：使星号更明显 */
+}
+
 /* 中间栏样式 */
 .center-column {
     flex: 1;

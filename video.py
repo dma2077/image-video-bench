@@ -147,28 +147,28 @@
 
 # print(f"Sampled video IDs have been saved to '{output_file_path}'.")
 
-import json
+# import json
 
-video_ids = []
-with open(
-    "E:/Code/image-video-bench/sample_video_ids_1222.txt", "r", encoding="utf-8"
-) as file:
-    lines = file.readlines()
-    for line in lines:
-        line = line.strip()
-        video_ids.append(line)
+# video_ids = []
+# with open(
+#     "E:/Code/image-video-bench/sample_video_ids_1222.txt", "r", encoding="utf-8"
+# ) as file:
+#     lines = file.readlines()
+#     for line in lines:
+#         line = line.strip()
+#         video_ids.append(line)
 
-print(f"Total videos after initial filtering: {len(video_datas)}")
+# print(f"Total videos after initial filtering: {len(video_datas)}")
 
 
-output_file_path = "./sampled_youtube_video.jsonl"
-with open(output_file_path, "w", encoding="utf-8") as file:
-    for video in video_datas:
-        video = json.dumps(video)
-        file.write(video)
-        file.write("\n")
+# output_file_path = "./sampled_youtube_video.jsonl"
+# with open(output_file_path, "w", encoding="utf-8") as file:
+#     for video in video_datas:
+#         video = json.dumps(video)
+#         file.write(video)
+#         file.write("\n")
 
-print(f"Sampled video IDs have been saved to '{output_file_path}'.")
+# print(f"Sampled video IDs have been saved to '{output_file_path}'.")
 
 # # Step 2: Get all .mp4 files from the directory (file names without .mp4 extension)
 # directory_path = r"E:\Code\image-video-bench\videos\examples\youtube_0518"
@@ -297,11 +297,27 @@ print(f"Sampled video IDs have been saved to '{output_file_path}'.")
 #         file.write(f"{video['video_id']}\n")
 
 # print(f"Sampled video IDs have been saved to '{output_file_path}'.")
-video_dict = {}
-with open(
-    "E:/Code/image-video-bench/text_files/sampled_videos_ids.json",
-    "w",
-    encoding="utf-8",
-) as file:
-    video_dict["sampled_id"] = video_ids
-    json.dump(video_dict, file, indent=4, ensure_ascii=False)
+import csv
+import json
+
+# Define the file paths
+csv_file_path = '/Users/dehua/code/image-video-bench/representative_video_ids_1100.csv'
+json_file_path = '/Users/dehua/code/image-video-bench/text_files/sampled_videos_ids_1100.json'
+
+# Read the CSV file and extract the video IDs
+video_ids = []
+with open(csv_file_path, mode='r') as csv_file:
+    csv_reader = csv.reader(csv_file)
+    for row in csv_reader:
+        # Assuming the CSV file contains one ID per line
+        video_ids.append(row[0])  # Adjust if there are other columns
+
+# Create a dictionary with the key 'sampled_id' and the list of IDs as the value
+video_ids_dict = {"sampled_id": video_ids}
+
+# Write the dictionary to a JSON file
+with open(json_file_path, mode='w') as json_file:
+    json.dump(video_ids_dict, json_file, indent=4)
+
+print(f"Data successfully written to {json_file_path}")
+

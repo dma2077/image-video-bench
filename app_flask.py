@@ -14,6 +14,7 @@ import os
 from werkzeug.utils import secure_filename
 import uuid
 import markdown
+import shutil
 
 # ======== static and global variables ========
 static_root_path = "/Users/dehua/code/image-video-bench/videos"
@@ -31,7 +32,7 @@ login_manager.login_view = "welcome"
 
 local_video_dir = "./examples/youtube_sampled"
 res_dir = "./res/res_current"
-get_image_root = "./upload_images"
+image_root = "./upload_images"
 text_files_dir = "text_files"
 text_en_path = f"./{text_files_dir}/text_en_display.jsonl"
 text_zh_path = f"./{text_files_dir}/text_zh_display.jsonl"
@@ -39,7 +40,7 @@ user_info_path = f"./{text_files_dir}/user_info.json"
 user_question_type_info_path = f"./{text_files_dir}/user_question_type_info.json"
 
 reported_problem_log = f"./{text_files_dir}/problem_reported.json"
-sampled_id_file = f"./{text_files_dir}/sampled_videos_ids.json"
+sampled_id_file = f"./{text_files_dir}/sampled_videos_ids_1100.json"
 
 # 配置上传文件夹和允许的扩展名
 UPLOAD_FOLDER = "./videos/upload_images"
@@ -247,7 +248,7 @@ def load_annotations(annotation_file, vid_name):
         annotations = [
             {
                 "data_id": 0,
-                "image": "",
+                "image_name": "",
                 "question": "",
                 "question_type": "",
                 "granularity": "",
@@ -290,7 +291,7 @@ def display():
             annotations = [
                 {
                     "data_id": 0,
-                    "image": "",
+                    "image_name": "",
                     "question": "",
                     "question_type": "",
                     "granularity": "",
@@ -299,7 +300,6 @@ def display():
                     "distractors": [""] * 9,
                 }
             ]
-
         # 确保 video_question_idx 有效
         if video_question_idx >= len(annotations):
             video_question_idx = len(annotations) - 1
@@ -311,6 +311,10 @@ def display():
         subscore_def = subscore_def_en_list
         before_start_anno = before_start
         prompt = text_prompts_en[current_video_idx].get("text", "")
+        if current_annotation["image_name"] != '':
+            current_annotation["image_name"] = os.path.join(image_root, current_annotation["image_name"])
+            image_name = current_annotation["image_name"]
+            print(f"image_name is:{image_name}")
 
         return render_template(
             html_file,
@@ -567,6 +571,89 @@ def update_annotation_file(ans_file, vid_name, annotations):
             f.write("\n")
 
 
+def adjust_image_filenames(vid_name, upload_folder, annotations, operation, affected_idx):
+    """
+    调整图像文件的命名以保持一致性。
+
+    参数：
+    - vid_name (str): 视频名称。
+    - upload_folder (str): 图像上传文件夹的路径。
+    - annotations (list): 标注列表，每个标注包含 'image_name'。
+    - operation (str): 操作类型，'copy' 或 'delete'。
+    - affected_idx (int): 受影响的索引位置（复制时为插入位置，删除时为删除位置）。
+    """
+    if operation not in {"copy", "delete"}:
+        raise ValueError("操作类型必须是 'copy' 或 'delete'。")
+
+    # 确定处理顺序
+    if operation == "copy":
+        # 复制时，先处理较大的索引，以避免重命名冲突
+        sorted_annotations = sorted(
+            [(i, ann) for i, ann in enumerate(annotations) if ann.get("image_name") and ann["image_name"] != "no_image"],
+            key=lambda x: x[0],
+            reverse=True
+        )
+        # 从 affected_idx 开始，所有索引 >= affected_idx 需要加一
+        for i, ann in sorted_annotations:
+            if i >= affected_idx:
+                old_image_name = ann["image_name"]
+                filename_parts = old_image_name.split('_', 2)
+                if len(filename_parts) == 3 and filename_parts[0] == vid_name:
+                    _, idx_str, original_filename = filename_parts
+                    try:
+                        idx = int(idx_str)
+                        new_idx = idx + 1
+                        new_image_name = f"{vid_name}_{new_idx}_{original_filename}"
+                        print(f"new_image_path is {new_image_name}, old_image_paht is {old_image_name}")
+                        old_image_name = os.path.join(upload_folder, old_image_name)
+                        new_image_path = os.path.join(upload_folder, new_image_name)
+                        if os.path.exists(old_image_name):
+                            if i == affected_idx:
+                                shutil.copy(old_image_name, new_image_path)
+                                ann["image_name"] = new_image_name
+                                continue
+                            shutil.move(old_image_name, new_image_path)
+                            ann["image_name"] = new_image_name
+                    except ValueError:
+                        # 如果索引部分无法转换为整数，跳过重命名
+                        continue
+
+    elif operation == "delete":
+        # 删除时，先处理较小的索引，以避免重命名冲突
+        sorted_annotations = sorted(
+            [(i, ann) for i, ann in enumerate(annotations) if ann.get("image_name") and ann["image_name"] != "no_image"],
+            key=lambda x: x[0]
+        )
+
+        # 从 affected_idx 开始，所有索引 > affected_idx 需要减一
+        for i, ann in sorted_annotations:
+            if i >= affected_idx:
+                old_image_name = ann["image_name"]
+                filename_parts = old_image_name.split('_', 2)
+                
+                if len(filename_parts) == 3 and filename_parts[0] == vid_name:
+                    _, idx_str, original_filename = filename_parts
+                    idx = int(idx_str)
+                    new_idx = idx - 1
+                    new_image_name = f"{vid_name}_{new_idx}_{original_filename}"
+
+                    # 获取图片的绝对路径
+                    old_image_path = os.path.join(upload_folder, old_image_name)
+                    new_image_path = os.path.join(upload_folder, new_image_name)
+
+                    # 如果图片文件存在，删除或重命名
+                    if os.path.exists(old_image_path):
+                        if i == affected_idx:
+                            # 删除当前图片文件
+                            os.remove(old_image_path)
+                            continue  # 删除完毕后跳过这个元素
+
+                        # 移动图片文件，并更新路径
+                        shutil.move(old_image_path, new_image_path)
+                        ann["image_name"] = new_image_name
+
+
+
 @app.route("/submit", methods=["POST"])
 def submit():
     username = session.get("username")
@@ -617,7 +704,7 @@ def submit():
             annotations = [
                 {
                     "data_id": 0,
-                    "image": "",
+                    "image_name": "",
                     "question": "",
                     "question_type": "",
                     "granularity": "",
@@ -627,16 +714,21 @@ def submit():
                 }
             ]
         current_annotation = annotations[video_question_idx]
-        # 创建复制的标注
-        current_annotation = annotations[video_question_idx]
 
+        # 创建复制的标注
         copied_annotation = current_annotation.copy()
         copied_annotation["data_id"] = video_question_idx + 1
 
+
         annotations.insert(video_question_idx + 1, copied_annotation)
 
+        # 更新后续标注的 data_id
         for i in range(video_question_idx + 2, len(annotations)):
             annotations[i]["data_id"] = annotations[i]["data_id"] + 1
+        
+        # 调整图像文件名，传递正确的 affected_idx
+        adjust_image_filenames(vid_name, app.config["UPLOAD_FOLDER"], annotations, 'copy', video_question_idx + 1)
+        print(f"annotations after copy is {annotations}")
 
         video_question_number = len(annotations)
 
@@ -663,11 +755,16 @@ def submit():
             flash("每个视频至少保留一条数据，无法删除。")
             return redirect(url_for("display"))
 
+        adjust_image_filenames(vid_name, app.config["UPLOAD_FOLDER"], annotations, 'delete', video_question_idx)
+
         removed_annotation = annotations.pop(video_question_idx)
-
-        for i in range(video_question_idx, len(annotations)):
-            annotations[i]["data_id"] = annotations[i]["data_id"] - 1
-
+        # 判断video_question_idx是否不是最后一个元素
+        if video_question_idx < len(annotations):
+            # 如果是中间元素，更新后面所有元素的data_id
+            for i in range(video_question_idx, len(annotations)):
+                annotations[i]["data_id"] = annotations[i]["data_id"] - 1
+        print(f"annotations after delete is {annotations}")
+        
         video_question_number = len(annotations)
         # 调整 video_question_idx 如果需要
         if video_question_idx >= video_question_number:
@@ -723,7 +820,23 @@ def submit():
         vid_name = request.form.get("video", "").split("/")[-1].split(".")[0]
         text = request.form.get("question", "")
 
-        # 处理图片上传
+
+        # 加载现有的标注
+        annotations = load_annotations(ans_file, vid_name)
+        if not annotations:
+            annotations = [
+                {
+                    "data_id": 0,
+                    "image_name": "",
+                    "question": "",
+                    "question_type": "",
+                    "granularity": "",
+                    "answer": "",
+                    "answer_location": "",
+                    "distractors": [""] * 9,
+                }
+            ]
+
         image = request.files.get("image")
         image_filename = None
         unique_filename = "no_image"  # 默认值
@@ -731,8 +844,7 @@ def submit():
         if image and image.filename != "":
             if allowed_file(image.filename):
                 filename = secure_filename(image.filename)
-                unique_filename = f"{uuid.uuid4().hex}_{filename}"
-                unique_filename = f"{vid_name}_{video_question_idx}"
+                unique_filename = f"{vid_name}_{video_question_idx}_{filename}"
                 image_path = os.path.join(app.config["UPLOAD_FOLDER"], unique_filename)
                 image.save(image_path)
                 image_filename = unique_filename
@@ -742,6 +854,9 @@ def submit():
                 flash("不支持的文件类型。")
                 return redirect(url_for("display"))
 
+        if not image_filename:
+            current_annotation = annotations[video_question_idx]
+            image_filename = current_annotation["image_name"]
         # 构建答案字典
         answer_dict = {
             "data_id": video_question_idx,  # 使用当前索引作为 data_id
@@ -755,22 +870,6 @@ def submit():
                 request.form.get(f"distractor{i}", "") for i in range(1, 10)
             ],
         }
-
-        # 加载现有的标注
-        annotations = load_annotations(ans_file, vid_name)
-        if not annotations:
-            annotations = [
-                {
-                    "data_id": 0,
-                    "image": "",
-                    "question": "",
-                    "question_type": "",
-                    "granularity": "",
-                    "answer": "",
-                    "answer_location": "",
-                    "distractors": [""] * 9,
-                }
-            ]
 
         # 更新当前标注
         if len(annotations) > video_question_idx:
