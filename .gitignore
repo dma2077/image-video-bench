@@ -10,3 +10,5 @@ representative_video_ids_1100.csv
 representative_video_ids_1200.csv
 sample_video_ids_1222.txt
 youtube_downloads
+videos/examples/youtube_sampled
+metadata.jsonl

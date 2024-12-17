@@ -1,5 +1,12 @@
 from flask import Flask, request, render_template, session, redirect, url_for, flash
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_login import (
+    LoginManager,
+    UserMixin,
+    login_user,
+    login_required,
+    logout_user,
+    current_user,
+)
 from datetime import timedelta
 import json
 import datetime
@@ -9,20 +16,20 @@ import uuid
 import markdown
 
 # ======== static and global variables ========
-#static_root_path = "/map-vepfs/dehua/data/image-video-bench/image-video-bench/videos"
-static_root_path = "E:/Code/image-video-bench/videos"
+static_root_path = "/map-vepfs/dehua/data/image-video-bench/image-video-bench/videos"
+# static_root_path = "E:/Code/image-video-bench/videos"
 
 app = Flask(__name__, static_folder=static_root_path)
 app.secret_key = os.urandom(24)
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=100)
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=100)
 PORT_NUM = 22002
 subpath = "/image_video_bench/"
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'welcome'
+login_manager.login_view = "welcome"
 
-local_video_dir = "./examples/youtube_0518"
+local_video_dir = "./examples/youtube_sampled"
 res_dir = "./res/res_current"
 get_image_root = "./upload_images"
 text_files_dir = "text_files"
@@ -32,19 +39,19 @@ user_info_path = f"./{text_files_dir}/user_info.json"
 user_question_type_info_path = f"./{text_files_dir}/user_question_type_info.json"
 
 reported_problem_log = f"./{text_files_dir}/problem_reported.json"
-sampled_id_file = f"./{text_files_dir}/sampled_youtube_video_id.json"
+sampled_id_file = f"./{text_files_dir}/sampled_videos_ids.json"
 
 # 配置上传文件夹和允许的扩展名
-UPLOAD_FOLDER = './videos/upload_images'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+UPLOAD_FOLDER = "./videos/upload_images"
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 # ======== preparing video-ids and videos  =========
 video_id_list = []
 videos = []
 
-with open(sampled_id_file, 'r', encoding='utf-8') as f:
+with open(sampled_id_file, "r", encoding="utf-8") as f:
     sampled_id_data = json.load(f)
     video_id_list = sampled_id_data["sampled_id"]
 
@@ -54,44 +61,50 @@ print("len of video_id_list ", len(video_id_list))
 
 videos_all = [f"{v_id}.mp4" for v_id in video_id_list]
 
-# ======= preparing text prompts ======== 
+# ======= preparing text prompts ========
 text_prompts_en_all = []
 text_prompts_zh_all = []
-with open(text_en_path, "r", encoding='utf-8') as f:
+with open(text_en_path, "r", encoding="utf-8") as f:
     for line in f:
         text_prompts_en_all.append(json.loads(line))
-with open(text_zh_path, "r", encoding='utf-8') as f:
+with open(text_zh_path, "r", encoding="utf-8") as f:
     for line in f:
         text_prompts_zh_all.append(json.loads(line))
 
 # ======== textual static contents ========
-with open(f'./templates/html_text_en/start.txt', 'r', encoding='utf-8') as file:
+with open(f"./templates/html_text_en/start.txt", "r", encoding="utf-8") as file:
     before_start = file.read()
-with open(f'./templates/html_text_zh/start_zh.txt', 'r', encoding='utf-8') as file:
+with open(f"./templates/html_text_zh/start_zh.txt", "r", encoding="utf-8") as file:
     before_start_zh = file.read()
 
 subscore_def_en_list = []
 subscore_files = ["question_type.txt", "image.txt", "distractor.txt"]
 for fname in subscore_files:
-    with open(f'./templates/html_text_en/{fname}', 'r', encoding='utf-8') as file:
+    with open(f"./templates/html_text_en/{fname}", "r", encoding="utf-8") as file:
         content = file.read()
-    subscore_def_en_list.append(content)   
+    subscore_def_en_list.append(content)
 
 subscore_def_zh_list = []
-subscore_zh_files = ["visual_zh.txt", "temporal_zh.txt", "dynamic_zh.txt", "align_zh.txt", "factual_zh.txt"]
+subscore_zh_files = [
+    "visual_zh.txt",
+    "temporal_zh.txt",
+    "dynamic_zh.txt",
+    "align_zh.txt",
+    "factual_zh.txt",
+]
 for fname in subscore_zh_files:
-    with open(f'./templates/html_text_zh/{fname}', 'r', encoding='utf-8') as file:
+    with open(f"./templates/html_text_zh/{fname}", "r", encoding="utf-8") as file:
         content = file.read()
     subscore_def_zh_list.append(content)
 
 # ======== user info ========
 current_user_dict = {}
-with open(user_info_path, 'r', encoding='utf-8') as f:
+with open(user_info_path, "r", encoding="utf-8") as f:
     user_data = json.load(f)
 users = list(user_data.keys())
 print("users ", users)
 
-with open(user_question_type_info_path, 'r', encoding='utf-8') as f:
+with open(user_question_type_info_path, "r", encoding="utf-8") as f:
     user_question_type_data = json.load(f)
 
 s_idx_user_mapping = {}
@@ -105,11 +118,13 @@ annotators = users
 answers_all = []
 VALIDATE_USER_NAME = "video_admin"
 
+
 # ======== user login part ========
 class User(UserMixin):
     def __init__(self, id):
         print("user init")
         self.id = id
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -120,24 +135,26 @@ def load_user(user_id):
         print("user_id not in users_list")
     return None
 
-# ======== webpage_v2 contents ========
-@app.route(f'{subpath}', methods=['GET'])
-def start():
-    return redirect(url_for('welcome'))
 
-@app.route(f'{subpath}welcome', methods=['GET', 'POST'])
+# ======== webpage_v2 contents ========
+@app.route(f"{subpath}", methods=["GET"])
+def start():
+    return redirect(url_for("welcome"))
+
+
+@app.route(f"{subpath}welcome", methods=["GET", "POST"])
 def welcome():
-    session['current_idx'] = 0
+    session["current_idx"] = 0
     # session["pre_anno_answers"]={}
-    session['admin'] = None
-    session['s_idx_val'] = 0
-    session['e_idx_val'] = len(video_id_list) - 1
+    session["admin"] = None
+    session["s_idx_val"] = 0
+    session["e_idx_val"] = len(video_id_list) - 1
 
     html_file = "welcome.html"
     subscore_def = subscore_def_en_list
     before_start_anno = before_start
 
-    language = request.form.get('language', "en")
+    language = request.form.get("language", "en")
     session["language"] = language
     print("welcome language", language)
     if language == "zh":
@@ -147,59 +164,59 @@ def welcome():
         before_start_anno = before_start_zh
 
     # before_start_anno = markdown.markdown(before_start_anno)
-    return render_template(html_file,
-                           before_start_anno=before_start_anno)
+    return render_template(html_file, before_start_anno=before_start_anno)
 
 
-@app.route(f'{subpath}login_method_1', methods=['POST'])
+@app.route(f"{subpath}login_method_1", methods=["POST"])
 def login_method_1():
-    username = request.form['username']
+    username = request.form["username"]
     ans_path = f""
     if username in users:
         print("user ", username)
         curr_user_dict = user_data.get(username)
         ans_path = f"{res_dir}/ans_{username}.jsonl"
     else:
-        return redirect(url_for('welcome'))
-        
+        return redirect(url_for("welcome"))
+
     user = User(username)
     login_user(user)
 
     curr_user_dict = user_data.get(username)
-    session['username'] = curr_user_dict.get("username", username)
-    session['s_idx'] = curr_user_dict.get('s_idx', 0)
-    session['e_idx'] = curr_user_dict.get('e_idx', len(video_id_list)-1)
-    session['current_idx'] = curr_user_dict.get('current_idx', 0)
-    session['video_question_idx'] = 0  # 初始化当前标注索引
-    return redirect(url_for('display'))
+    session["username"] = curr_user_dict.get("username", username)
+    session["s_idx"] = curr_user_dict.get("s_idx", 0)
+    session["e_idx"] = curr_user_dict.get("e_idx", len(video_id_list) - 1)
+    session["current_idx"] = curr_user_dict.get("current_idx", 0)
+    session["video_question_idx"] = 0  # 初始化当前标注索引
+    return redirect(url_for("display"))
 
-@app.route(f'{subpath}login_method_2', methods=['POST'])
+
+@app.route(f"{subpath}login_method_2", methods=["POST"])
 def login_method_2():
-    username = request.form['username']
+    username = request.form["username"]
     ans_path = f""
     if username in users:
         print("user ", username)
         curr_user_dict = user_question_type_data.get(username)
         ans_path = f"{res_dir}/ans_{username}.jsonl"
     else:
-        return redirect(url_for('welcome'))
-        
+        return redirect(url_for("welcome"))
+
     user = User(username)
     login_user(user)
 
     curr_user_dict = user_question_type_data.get(username)
-    session['username'] = curr_user_dict.get("username", username)
-    session['s_idx'] = curr_user_dict.get('s_idx', 0)
-    session['e_idx'] = curr_user_dict.get('e_idx', len(video_id_list)-1)
-    session['current_idx'] = curr_user_dict.get('current_idx', 0)
-    session['video_question_idx'] = 0  # 初始化当前标注索引
-    return redirect(url_for('display_type'))
+    session["username"] = curr_user_dict.get("username", username)
+    session["s_idx"] = curr_user_dict.get("s_idx", 0)
+    session["e_idx"] = curr_user_dict.get("e_idx", len(video_id_list) - 1)
+    session["current_idx"] = curr_user_dict.get("current_idx", 0)
+    session["video_question_idx"] = 0  # 初始化当前标注索引
+    return redirect(url_for("display_type"))
 
 
 def load_questions_type(question_type_file, vid_name):
     type_data_list = []
     if os.path.exists(question_type_file):
-        with open(question_type_file, 'r', encoding='utf-8') as f:
+        with open(question_type_file, "r", encoding="utf-8") as f:
             for line in f:
                 try:
                     d = json.loads(line)
@@ -217,7 +234,7 @@ def load_annotations(annotation_file, vid_name):
     annotations = []
     if not os.path.exists(annotation_file):
         return annotations
-    with open(annotation_file, 'r', encoding='utf-8') as f:
+    with open(annotation_file, "r", encoding="utf-8") as f:
         for line in f:
             try:
                 video_annotations = json.loads(line)
@@ -227,71 +244,76 @@ def load_annotations(annotation_file, vid_name):
             except json.JSONDecodeError:
                 continue
     if not annotations:
-        annotations = [{
-            'data_id': 0,
-            'image': '',
-            'question': '',
-            'question_type': '',
-            'granularity': '',
-            'answer': '',
-            'answer_location': '',
-            'distractors': [''] * 9
-        }]
+        annotations = [
+            {
+                "data_id": 0,
+                "image": "",
+                "question": "",
+                "question_type": "",
+                "granularity": "",
+                "answer": "",
+                "answer_location": "",
+                "distractors": [""] * 9,
+            }
+        ]
     return annotations
 
 
-@app.route(f'{subpath}annotating', methods=['GET', 'POST'])
+@app.route(f"{subpath}annotating", methods=["GET", "POST"])
 def display():
     s_idx = session.get("s_idx", 0)
-    e_idx = session.get("e_idx", len(video_id_list)-1)
-    videos_curr_user = videos_all[s_idx:e_idx + 1]
-    text_prompts_en = text_prompts_en_all[s_idx:e_idx + 1]
-    text_prompts_zh = text_prompts_zh_all[s_idx:e_idx + 1]
+    e_idx = session.get("e_idx", len(video_id_list) - 1)
+    videos_curr_user = videos_all[s_idx : e_idx + 1]
+    text_prompts_en = text_prompts_en_all[s_idx : e_idx + 1]
+    text_prompts_zh = text_prompts_zh_all[s_idx : e_idx + 1]
     username = session.get("username")
     if not username:
         flash("请先登录。")
-        return redirect(url_for('welcome'))
+        return redirect(url_for("welcome"))
     ans_file = f"{res_dir}/ans_{username}.jsonl"
     q_file = f"{res_dir}/q_{username}.jsonl"
     current_video_idx = int(session.get("current_idx", 0))
     video_question_idx = int(session.get("video_question_idx", 0))
     print("curr_video_idx in display ", current_video_idx)
     print("video_question_idx in display ", video_question_idx)
-    
+
     slice_start_idx = 0
     slice_end_idx = len(videos_curr_user) - 1
     if current_video_idx <= slice_end_idx:
         vid_name = videos_curr_user[current_video_idx].split(".")[0]
         print("video name in display ", f"{vid_name}.mp4")
-        
+
         video = f"{local_video_dir}/{videos_curr_user[current_video_idx]}"
         annotations = load_annotations(ans_file, vid_name)  # 加载所有标注
         print("annotations loaded: ", annotations)
         if not annotations:
-            annotations = [{
-                'data_id': 0,
-                'image': '',
-                'question': '',
-                'question_type': '',
-                'granularity': '',
-                'answer': '',
-                'answer_location': '',
-                'distractors': [''] * 9
-            }]
-        
+            annotations = [
+                {
+                    "data_id": 0,
+                    "image": "",
+                    "question": "",
+                    "question_type": "",
+                    "granularity": "",
+                    "answer": "",
+                    "answer_location": "",
+                    "distractors": [""] * 9,
+                }
+            ]
+
         # 确保 video_question_idx 有效
         if video_question_idx >= len(annotations):
             video_question_idx = len(annotations) - 1
-            session['video_question_idx'] = video_question_idx
+            session["video_question_idx"] = video_question_idx
         current_annotation = annotations[video_question_idx]
         current_question_types = load_questions_type(q_file, vid_name)
-        
+
         html_file = "display.html"
         subscore_def = subscore_def_en_list
         before_start_anno = before_start
         prompt = text_prompts_en[current_video_idx].get("text", "")
 
-        return render_template(html_file, 
+        return render_template(
+            html_file,
             before_start_anno=before_start_anno,
             subscore_def=subscore_def,
             start_index=slice_start_idx,
@@ -304,49 +326,50 @@ def display():
             video_question_idx=video_question_idx,
             selected_question_types=current_question_types,
             annotations=annotations,  # 传递所有标注
-            _is_val=0)  # 传递 end_index 给模板
+            _is_val=0,
+        )  # 传递 end_index 给模板
 
     else:
         current_video_idx = 0
         session["current_idx"] = current_video_idx
         session["video_question_idx"] = 0
-        user_data[username]['current_idx'] = session['current_idx']
-        user_data[username]['video_question_idx'] = session['video_question_idx']
-        with open(user_info_path, "w", encoding='utf-8') as file:
+        user_data[username]["current_idx"] = session["current_idx"]
+        user_data[username]["video_question_idx"] = session["video_question_idx"]
+        with open(user_info_path, "w", encoding="utf-8") as file:
             json.dump(user_data, file, indent=4, ensure_ascii=False)
 
         print("curr_video_idx in display ", current_video_idx)
-        return redirect(url_for('display'))
+        return redirect(url_for("display"))
 
 
-@app.route(f'{subpath}annotating_type', methods=['GET', 'POST'])
+@app.route(f"{subpath}annotating_type", methods=["GET", "POST"])
 def display_type():
     s_idx = session.get("s_idx", 0)
-    e_idx = session.get("e_idx", len(video_id_list)-1)
-    videos_curr_user = videos_all[s_idx:e_idx + 1]
-    text_prompts_en = text_prompts_en_all[s_idx:e_idx + 1]
-    text_prompts_zh = text_prompts_zh_all[s_idx:e_idx + 1]
+    e_idx = session.get("e_idx", len(video_id_list) - 1)
+    videos_curr_user = videos_all[s_idx : e_idx + 1]
+    text_prompts_en = text_prompts_en_all[s_idx : e_idx + 1]
+    text_prompts_zh = text_prompts_zh_all[s_idx : e_idx + 1]
     username = session.get("username")
     if not username:
         flash("请先登录。")
-        return redirect(url_for('welcome'))
+        return redirect(url_for("welcome"))
     question_type_file = f"{res_dir}/q_{username}.jsonl"
     current_video_idx = int(session.get("current_idx", 0))
     video_question_idx = int(session.get("video_question_idx", 0))
     print("curr_video_idx in display_type ", current_video_idx)
     print("video_question_idx in display_type ", video_question_idx)
-    
+
     slice_start_idx = 0
     slice_end_idx = len(videos_curr_user) - 1
     if current_video_idx <= slice_end_idx:
         vid_name = videos_curr_user[current_video_idx].split(".")[0]
         print("video name in display_type ", f"{vid_name}.mp4")
-        
+
         video = f"{local_video_dir}/{videos_curr_user[current_video_idx]}"
         print(video)
         answer_data_dict = {}
         if os.path.exists(question_type_file):
-            with open(question_type_file, 'r', encoding='utf-8') as f:
+            with open(question_type_file, "r", encoding="utf-8") as f:
                 for line in f:
                     try:
                         d = json.loads(line)
@@ -355,11 +378,11 @@ def display_type():
                         continue
 
         answered_vid_list = list(answer_data_dict.keys())
-    
+
         current_answers = []
         if vid_name in answered_vid_list:
             current_answers = answer_data_dict[vid_name]
-        
+
         # print("answered_vid_list",answered_vid_list)
         print("current_answers (list) ", current_answers)
 
@@ -370,7 +393,8 @@ def display_type():
         language = session.get("language", "en")
         print("language in display_type ", language)
 
-        return render_template(html_file, 
+        return render_template(
+            html_file,
             before_start_anno=before_start_anno,
             subscore_def=subscore_def,
             start_index=slice_start_idx,
@@ -381,60 +405,87 @@ def display_type():
             text_prompt=prompt,
             answered_vid_list=answered_vid_list,
             selected_question_types=current_answers,
-            _is_val=0)  # 传递 end_index 给模板
+            _is_val=0,
+        )  # 传递 end_index 给模板
 
     else:
         current_video_idx = 0
         session["current_idx"] = current_video_idx
         session["video_question_idx"] = 0
-        user_question_type_data[username]['current_idx'] = session['current_idx']
-        user_question_type_data[username]['video_question_idx'] = session['video_question_idx']
-        with open(user_info_path, "w", encoding='utf-8') as file:
+        user_question_type_data[username]["current_idx"] = session["current_idx"]
+        user_question_type_data[username]["video_question_idx"] = session[
+            "video_question_idx"
+        ]
+        with open(user_info_path, "w", encoding="utf-8") as file:
             json.dump(user_question_type_data, file, indent=4, ensure_ascii=False)
 
         print("curr_video_idx in display_type ", current_video_idx)
-        return redirect(url_for('display_type'))
+        return redirect(url_for("display_type"))
 
 
-@app.route(f'{subpath}navigate_main', methods=['POST'])
+@app.route(f"{subpath}navigate_main", methods=["POST"])
 def navigate_main():
     s_idx = session.get("s_idx", 0)
-    e_idx = session.get("e_idx", len(video_id_list)-1)
+    e_idx = session.get("e_idx", len(video_id_list) - 1)
     slice_end_idx = e_idx - s_idx
-    direction = request.form.get('direction', '')
-    current_video_idx = int(request.form.get('current_idx', 0))
-    source_page = request.form.get('source_page')
+    direction = request.form.get("direction", "")
+    current_video_idx = int(request.form.get("current_idx", 0))
+    source_page = request.form.get("source_page")
     if source_page == "display_type":
         video_question_idx = 0
         video_question_number = 1
-        move_idx(direction, slice_end_idx, current_video_idx, video_question_idx, video_question_number)
+        move_idx(
+            direction,
+            slice_end_idx,
+            current_video_idx,
+            video_question_idx,
+            video_question_number,
+        )
         return redirect(url_for("display_type"))
-    
-    video_question_idx = int(request.form.get('video_question_idx', 0))
-    video_question_number = int(request.form.get('video_question_number', 0))
-    move_idx(direction, slice_end_idx, current_video_idx, video_question_idx, video_question_number)
-    return redirect(url_for('display'))
+
+    video_question_idx = int(request.form.get("video_question_idx", 0))
+    video_question_number = int(request.form.get("video_question_number", 0))
+    move_idx(
+        direction,
+        slice_end_idx,
+        current_video_idx,
+        video_question_idx,
+        video_question_number,
+    )
+    return redirect(url_for("display"))
 
 
-def move_idx(direction, slice_end_idx, current_video_idx, video_question_idx, video_question_number):
+def move_idx(
+    direction,
+    slice_end_idx,
+    current_video_idx,
+    video_question_idx,
+    video_question_number,
+):
     # 修改为在当前视频的标注之间导航
-    if direction == 'last':
+    if direction == "last":
         if video_question_idx > 0:
             video_question_idx -= 1
         else:
             # 如果当前是第一个标注，跳转到前一个视频的最后一个标注
             if current_video_idx > 0:
                 current_video_idx -= 1
-                annotations = load_annotations(f"{res_dir}/ans_{session.get('username')}.jsonl", videos_all[current_video_idx].split(".")[0])
+                annotations = load_annotations(
+                    f"{res_dir}/ans_{session.get('username')}.jsonl",
+                    videos_all[current_video_idx].split(".")[0],
+                )
                 video_question_number = len(annotations)
                 video_question_idx = video_question_number - 1
             else:
                 # 已是第一个视频的第一个标注，循环到最后一个视频的最后一个标注
                 current_video_idx = slice_end_idx
-                annotations = load_annotations(f"{res_dir}/ans_{session.get('username')}.jsonl", videos_all[current_video_idx].split(".")[0])
+                annotations = load_annotations(
+                    f"{res_dir}/ans_{session.get('username')}.jsonl",
+                    videos_all[current_video_idx].split(".")[0],
+                )
                 video_question_number = len(annotations)
                 video_question_idx = video_question_number - 1
-    elif direction == 'next':
+    elif direction == "next":
         if video_question_idx < video_question_number - 1:
             video_question_idx += 1
         else:
@@ -450,22 +501,33 @@ def move_idx(direction, slice_end_idx, current_video_idx, video_question_idx, vi
     session["current_idx"] = current_video_idx
     session["video_question_idx"] = video_question_idx
     print("current_idx after navigation ", session.get("current_idx", 0))
-    print("video_question_number after navigation ", session.get("video_question_number", 1))
+    print(
+        "video_question_number after navigation ",
+        session.get("video_question_number", 1),
+    )
     print("video_question_idx after navigation ", session.get("video_question_idx", 0))
-    
+
     print("navigation of display")
 
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def submit_success(username, current_video_idx, video_question_idx, user_data, user_info_path, video_question_number):
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def submit_success(
+    username,
+    current_video_idx,
+    video_question_idx,
+    user_data,
+    user_info_path,
+    video_question_number,
+):
     if video_question_idx + 1 >= video_question_number:
-        session['current_idx'] = current_video_idx + 1
-        session['video_question_idx'] = 0
+        session["current_idx"] = current_video_idx + 1
+        session["video_question_idx"] = 0
         session.modified = True
     else:
-        session['video_question_idx'] = video_question_idx + 1
+        session["video_question_idx"] = video_question_idx + 1
 
     print("idx after submission ", session.get("current_idx", 0))
     print("video_question_idx after submission ", session.get("video_question_idx", 0))
@@ -474,21 +536,21 @@ def submit_success(username, current_video_idx, video_question_idx, user_data, u
     if username not in user_data:
         user_data[username] = {}
 
-    user_data[username]['current_idx'] = session['current_idx']
-    user_data[username]['video_question_idx'] = session['video_question_idx']
+    user_data[username]["current_idx"] = session["current_idx"]
+    user_data[username]["video_question_idx"] = session["video_question_idx"]
 
-    with open(user_info_path, "w", encoding='utf-8') as file:
+    with open(user_info_path, "w", encoding="utf-8") as file:
         json.dump(user_data, file, indent=4, ensure_ascii=False)
-    print("*"*100)
+    print("*" * 100)
     flash("提交成功！")
-    print("*"*100)
+    print("*" * 100)
 
 
 def update_annotation_file(ans_file, vid_name, annotations):
     # 保存回 ans_file
     annotation_dict = {}
     if os.path.exists(ans_file):
-        with open(ans_file, 'r', encoding='utf-8') as f:
+        with open(ans_file, "r", encoding="utf-8") as f:
             has_flag = 0
             for line in f:
                 try:
@@ -496,71 +558,74 @@ def update_annotation_file(ans_file, vid_name, annotations):
                     annotation_dict.update(annotation)
                 except json.JSONDecodeError:
                     continue
-            
+
     annotation_dict[vid_name] = annotations
     # 写回 ans_file
-    with open(ans_file, 'w', encoding='utf-8') as f:
+    with open(ans_file, "w", encoding="utf-8") as f:
         for vid_name, datas in annotation_dict.items():
             json.dump({vid_name: datas}, f, ensure_ascii=False)
-            f.write('\n')
+            f.write("\n")
 
-@app.route('/submit', methods=['POST'])
+
+@app.route("/submit", methods=["POST"])
 def submit():
-    username = session.get('username')
+    username = session.get("username")
     if not username:
         # 处理未登录或未设置用户名的情况
         flash("请先登录。")
-        return redirect(url_for('welcome'))
+        return redirect(url_for("welcome"))
 
     ans_file = f"{res_dir}/ans_{username}.jsonl"
     question_type_file = f"{res_dir}/q_{username}.jsonl"
-    
-    action = request.form.get('action', '')
-    s_idx = session.get('s_idx', 0)
-    e_idx = session.get('e_idx', len(video_id_list)-1)
+
+    action = request.form.get("action", "")
+    s_idx = session.get("s_idx", 0)
+    e_idx = session.get("e_idx", len(video_id_list) - 1)
     slice_end_idx = e_idx - s_idx
-    source_page = request.form.get('source_page')
+    source_page = request.form.get("source_page")
 
-    current_video_idx = int(request.form.get('current_idx', 0))
-    video_question_idx = int(request.form.get('video_question_idx', 0))
-    video_question_number = int(request.form.get('video_question_number', 0))
-    vid_name = request.form.get('video', '').split("/")[-1].split(".")[0]
+    current_video_idx = int(request.form.get("current_idx", 0))
+    video_question_idx = int(request.form.get("video_question_idx", 0))
+    video_question_number = int(request.form.get("video_question_number", 0))
+    vid_name = request.form.get("video", "").split("/")[-1].split(".")[0]
 
-    if action == 'navigate':
+    if action == "navigate":
         # 处理跳转到指定索引，不进行metadata的完备性检查
         try:
-            next_idx = int(request.form.get('next_idx', 1)) - 1
+            next_idx = int(request.form.get("next_idx", 1)) - 1
             # 确保 next_idx 在视频范围内
             if next_idx < 0 or next_idx > slice_end_idx:
                 flash("跳转的索引超出范围。")
-                return redirect(url_for('display'))
-            session['current_idx'] = next_idx
-            session['video_question_idx'] = 0  # 切换视频时重置标注索引
+                return redirect(url_for("display"))
+            session["current_idx"] = next_idx
+            session["video_question_idx"] = 0  # 切换视频时重置标注索引
             session.modified = True
             flash(f"已跳转到索引 {next_idx + 1}。")
             if source_page == "display_type":
                 return redirect(url_for("display_type"))
-            return redirect(url_for('display'))
+            return redirect(url_for("display"))
         except ValueError:
             flash("无效的索引值。")
             if source_page == "display_type":
                 return redirect(url_for("display_type"))
-            return redirect(url_for('display'))
+            return redirect(url_for("display"))
 
-    elif action == 'copy':
+    elif action == "copy":
         # 处理复制操作
         annotations = load_annotations(ans_file, vid_name)
         if not annotations:
-            annotations = [{
-                'data_id': 0,
-                'image': '',
-                'question': '',
-                'question_type': '',
-                'granularity': '',
-                'answer': '',
-                'answer_location': '',
-                'distractors': [''] * 9
-            }]
+            annotations = [
+                {
+                    "data_id": 0,
+                    "image": "",
+                    "question": "",
+                    "question_type": "",
+                    "granularity": "",
+                    "answer": "",
+                    "answer_location": "",
+                    "distractors": [""] * 9,
+                }
+            ]
         current_annotation = annotations[video_question_idx]
         # 创建复制的标注
         current_annotation = annotations[video_question_idx]
@@ -576,21 +641,27 @@ def submit():
         video_question_number = len(annotations)
 
         update_annotation_file(ans_file, vid_name, annotations)
-        
+
         flash("已复制当前条目。")
 
-        direction = 'next'
+        direction = "next"
         session["video_question_number"] = video_question_number
-        move_idx(direction, slice_end_idx, current_video_idx, video_question_idx, video_question_number)
-        return redirect(url_for('display'))
+        move_idx(
+            direction,
+            slice_end_idx,
+            current_video_idx,
+            video_question_idx,
+            video_question_number,
+        )
+        return redirect(url_for("display"))
 
-    elif action == 'delete':
+    elif action == "delete":
         # 处理删除操作
         annotations = load_annotations(ans_file, vid_name)
 
         if len(annotations) <= 1:
             flash("每个视频至少保留一条数据，无法删除。")
-            return redirect(url_for('display'))
+            return redirect(url_for("display"))
 
         removed_annotation = annotations.pop(video_question_idx)
 
@@ -601,24 +672,26 @@ def submit():
         # 调整 video_question_idx 如果需要
         if video_question_idx >= video_question_number:
             video_question_idx = video_question_number - 1
-            session['video_question_idx'] = video_question_idx
-        
+            session["video_question_idx"] = video_question_idx
+
         update_annotation_file(ans_file, vid_name, annotations)
         flash("已删除当前条目。")
-        return redirect(url_for('display'))
-             
-    elif action == 'submit':
+        return redirect(url_for("display"))
+
+    elif action == "submit":
         if source_page == "display_type":
             # 处理 question type 的提交
-            current_video_idx = int(request.form.get('current_idx', 0))
-            video_question_idx = int(request.form.get('video_question_idx', 0))
-            question_type = request.form.getlist('question_type')
-            vid_name = os.path.splitext(os.path.basename(request.form.get('video', '')))[0]
-            
+            current_video_idx = int(request.form.get("current_idx", 0))
+            video_question_idx = int(request.form.get("video_question_idx", 0))
+            question_type = request.form.getlist("question_type")
+            vid_name = os.path.splitext(
+                os.path.basename(request.form.get("video", ""))
+            )[0]
+
             # 加载现有的 question_type 数据
             answer_data_dict = {}
             if os.path.exists(question_type_file):
-                with open(question_type_file, 'r', encoding='utf-8') as f:
+                with open(question_type_file, "r", encoding="utf-8") as f:
                     for line in f:
                         try:
                             d = json.loads(line)
@@ -630,69 +703,73 @@ def submit():
             answer_data_dict[vid_name] = question_type
 
             # 保存回 question_type_file
-            with open(question_type_file, 'w', encoding='utf-8') as f:
+            with open(question_type_file, "w", encoding="utf-8") as f:
                 for vid, types in answer_data_dict.items():
                     json_line = json.dumps({vid: types}, ensure_ascii=False)
-                    f.write(json_line + '\n')
+                    f.write(json_line + "\n")
 
             # 更新 current_idx 和 video_question_idx
-            session['current_idx'] = current_video_idx + 1
-            session['video_question_idx'] = 0
+            session["current_idx"] = current_video_idx + 1
+            session["video_question_idx"] = 0
             session.modified = True
 
             flash("Question Type 已成功更新。")
             return redirect(url_for("display_type"))
-        
+
         # 处理标注数据的提交
-        current_video_idx = int(request.form.get('current_idx', 0))
-        video_question_idx = int(request.form.get('video_question_idx', 0))
-        video_question_number = int(request.form.get('video_question_number', 0))
-        vid_name = request.form.get('video', '').split("/")[-1].split(".")[0]
-        text = request.form.get('question', '')
+        current_video_idx = int(request.form.get("current_idx", 0))
+        video_question_idx = int(request.form.get("video_question_idx", 0))
+        video_question_number = int(request.form.get("video_question_number", 0))
+        vid_name = request.form.get("video", "").split("/")[-1].split(".")[0]
+        text = request.form.get("question", "")
 
         # 处理图片上传
-        image = request.files.get('image')
+        image = request.files.get("image")
         image_filename = None
         unique_filename = "no_image"  # 默认值
 
-        if image and image.filename != '':
+        if image and image.filename != "":
             if allowed_file(image.filename):
                 filename = secure_filename(image.filename)
                 unique_filename = f"{uuid.uuid4().hex}_{filename}"
-                image_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+                image_path = os.path.join(app.config["UPLOAD_FOLDER"], unique_filename)
                 image.save(image_path)
                 image_filename = unique_filename
                 print(f"image has been saved in {image_path}")
             else:
                 # 上传了文件但不符合扩展名要求
                 flash("不支持的文件类型。")
-                return redirect(url_for('display'))
+                return redirect(url_for("display"))
 
         # 构建答案字典
         answer_dict = {
             "data_id": video_question_idx,  # 使用当前索引作为 data_id
             "image_name": image_filename if image_filename else "",
             "question": text,
-            "question_type": request.form.get('question_type', ''),
-            "granularity": request.form.get('granularity', ''),
-            "answer": request.form.get('answer', ''),
-            "answer_location": request.form.get('answer_location', ''),
-            "distractors": [request.form.get(f'distractor{i}', '') for i in range(1, 10)]
+            "question_type": request.form.get("question_type", ""),
+            "granularity": request.form.get("granularity", ""),
+            "answer": request.form.get("answer", ""),
+            "answer_location": request.form.get("answer_location", ""),
+            "distractors": [
+                request.form.get(f"distractor{i}", "") for i in range(1, 10)
+            ],
         }
 
         # 加载现有的标注
         annotations = load_annotations(ans_file, vid_name)
         if not annotations:
-            annotations = [{
-                'data_id': 0, 
-                'image': '',
-                'question': '',
-                'question_type': '',
-                'granularity': '',
-                'answer': '',
-                'answer_location': '',
-                'distractors': [''] * 9
-            }]
+            annotations = [
+                {
+                    "data_id": 0,
+                    "image": "",
+                    "question": "",
+                    "question_type": "",
+                    "granularity": "",
+                    "answer": "",
+                    "answer_location": "",
+                    "distractors": [""] * 9,
+                }
+            ]
 
         # 更新当前标注
         if len(annotations) > video_question_idx:
@@ -703,12 +780,20 @@ def submit():
         update_annotation_file(ans_file, vid_name, annotations)
 
         # 更新 video_question_idx 如果需要
-        submit_success(username, current_video_idx, video_question_idx, user_data, user_info_path, video_question_number)
-        return redirect(url_for('display'))
+        submit_success(
+            username,
+            current_video_idx,
+            video_question_idx,
+            user_data,
+            user_info_path,
+            video_question_number,
+        )
+        return redirect(url_for("display"))
 
     else:
         flash("未知的操作。")
-        return redirect(url_for('display'))
+        return redirect(url_for("display"))
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=PORT_NUM)
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=PORT_NUM)

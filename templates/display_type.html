@@ -37,10 +37,19 @@
         <!-- 中间栏 -->
         <div class="center-column">
             <!-- 视频播放器 -->
+            <!-- 视频播放器上方显示 video_id -->
+            <div id="video-id-display" class="video-id">视频 ID: {{ vid_name }}</div>
+
             <video class="video_style" controls autoplay muted loop>
                 <source src="{{ url_for('static', filename=video) }}" type="video/mp4">
                 您的浏览器不支持视频标签。
             </video>
+
+            <script>
+                // 动态设置 video_id
+                const videoId = "{{ vid_name }}"; // 后端传递的变量
+                document.getElementById("video-id-display").innerHTML = `视频 url <br> https://www.youtube.com/watch?v=${videoId}`;
+            </script>
         </div>
 
         <!-- 右侧栏 -->
