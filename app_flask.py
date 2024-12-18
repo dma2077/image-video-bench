@@ -32,7 +32,6 @@ login_manager.login_view = "welcome"
 
 local_video_dir = "./examples/youtube_sampled"
 res_dir = "./res/res_current"
-image_root = "./upload_images"
 text_files_dir = "text_files"
 text_en_path = f"./{text_files_dir}/text_en_display.jsonl"
 text_zh_path = f"./{text_files_dir}/text_zh_display.jsonl"
@@ -42,11 +41,6 @@ user_question_type_info_path = f"./{text_files_dir}/user_question_type_info.json
 reported_problem_log = f"./{text_files_dir}/problem_reported.json"
 sampled_id_file = f"./{text_files_dir}/sampled_videos_ids_1100.json"
 
-# 配置上传文件夹和允许的扩展名
-UPLOAD_FOLDER = "./videos/upload_images"
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
-
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 # ======== preparing video-ids and videos  =========
 video_id_list = []
@@ -118,7 +112,7 @@ for user in users:
 annotators = users
 answers_all = []
 VALIDATE_USER_NAME = "video_admin"
-
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
 # ======== user login part ========
 class User(UserMixin):
@@ -188,6 +182,7 @@ def login_method_1():
     session["e_idx"] = curr_user_dict.get("e_idx", len(video_id_list) - 1)
     session["current_idx"] = curr_user_dict.get("current_idx", 0)
     session["video_question_idx"] = 0  # 初始化当前标注索引
+    session["image_root"] = f"./upload_images/{username}"
     return redirect(url_for("display"))
 
 
@@ -211,6 +206,7 @@ def login_method_2():
     session["e_idx"] = curr_user_dict.get("e_idx", len(video_id_list) - 1)
     session["current_idx"] = curr_user_dict.get("current_idx", 0)
     session["video_question_idx"] = 0  # 初始化当前标注索引
+    session["image_root"] = f"./upload_images/{username}"
     return redirect(url_for("display_type"))
 
 
@@ -312,7 +308,7 @@ def display():
         before_start_anno = before_start
         prompt = text_prompts_en[current_video_idx].get("text", "")
         if current_annotation["image_name"] != '':
-            current_annotation["image_name"] = os.path.join(image_root, current_annotation["image_name"])
+            current_annotation["image_name"] = os.path.join(session["image_root"], current_annotation["image_name"])
             image_name = current_annotation["image_name"]
             print(f"image_name is:{image_name}")
 
@@ -661,6 +657,16 @@ def submit():
         # 处理未登录或未设置用户名的情况
         flash("请先登录。")
         return redirect(url_for("welcome"))
+
+    # 配置上传文件夹和允许的扩展名
+    UPLOAD_FOLDER = f"./videos/upload_images/{username}"
+    # 检查是否存在，不存在则创建
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER)
+        print(f"Folder '{UPLOAD_FOLDER}' created successfully.")
+    else:
+        print(f"Folder '{UPLOAD_FOLDER}' already exists.")
+    app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
     ans_file = f"{res_dir}/ans_{username}.jsonl"
     question_type_file = f"{res_dir}/q_{username}.jsonl"
