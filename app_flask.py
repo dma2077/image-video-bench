@@ -23,7 +23,7 @@ static_root_path = "/Users/dehua/code/image-video-bench/videos"
 app = Flask(__name__, static_folder=static_root_path)
 app.secret_key = os.urandom(24)
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=100)
-PORT_NUM = 22001
+PORT_NUM = 22005
 subpath = "/image_video_bench/"
 
 login_manager = LoginManager()
@@ -39,7 +39,7 @@ user_info_path = f"./{text_files_dir}/user_info.json"
 user_question_type_info_path = f"./{text_files_dir}/user_question_type_info.json"
 
 reported_problem_log = f"./{text_files_dir}/problem_reported.json"
-sampled_id_file = f"./{text_files_dir}/sampled_videos_ids_1100.json"
+sampled_id_file = f"./{text_files_dir}/updated_sampled_videos_ids_1100.json"
 
 
 # ======== preparing video-ids and videos  =========

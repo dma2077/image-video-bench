@@ -24,6 +24,7 @@ def download_youtube_video(video_id, download_folder):
         result = ydl.extract_info(
             f"https://www.youtube.com/watch?v={video_id}", download=True
         )
+        print(result)
         return {
             "cate": result.get("categories", None),
             "query": result.get("query", None),
@@ -67,111 +68,111 @@ def save_metadata(metadata, metadata_file):
         f.write(json.dumps(metadata, ensure_ascii=False) + "\n")
 
 
-# if __name__ == "__main__":
-#     video_ids = []
-#     with open('/map-vepfs/dehua/data/image-video-bench/image-video-bench/sample_video_ids_1222.txt', 'r', encoding='utf-8') as file:
-#         for line in file.readlines():
-#             video_ids.append(line.strip())
-#     download_folder = "youtube_downloads"
-#     metadata_file = "metadata.jsonl"
-#     create_download_folder(download_folder)
+if __name__ == "__main__":
+    video_ids = []
+    with open('./sample_video_ids_1222.txt', 'r', encoding='utf-8') as file:
+        for line in file.readlines():
+            video_ids.append(line.strip())
+    download_folder = "youtube_downloads"
+    metadata_file = "metadata.jsonl"
+    create_download_folder(download_folder)
 
-#     for video_id in video_ids:
-#         try:
-#             video_metadata = download_youtube_video(video_id, download_folder)
+    for video_id in video_ids:
+        try:
+            video_metadata = download_youtube_video(video_id, download_folder)
+            print(video_metadata)
+        #     # 保存单一元数据格式
+        #     metadata = {
+        #         "cate": video_metadata.get('cate'),
+        #         "query": video_metadata.get('query'),
+        #         "uploader": video_metadata.get('uploader'),
+        #         "uploader_id": video_metadata.get('uploader_id'),
+        #         "url": video_metadata.get('url'),
+        #         "video_id": video_metadata.get('video_id'),
+        #         "title": video_metadata.get('title'),
+        #         "description": video_metadata.get('description'),
+        #         "quality": video_metadata.get('quality'),
+        #         "duration": video_metadata.get('duration'),
+        #         "publish_time": video_metadata.get('publish_time')
+        #     }
+        #     save_metadata(metadata, metadata_file)
 
-#             # 保存单一元数据格式
-#             metadata = {
-#                 "cate": video_metadata.get('cate'),
-#                 "query": video_metadata.get('query'),
-#                 "uploader": video_metadata.get('uploader'),
-#                 "uploader_id": video_metadata.get('uploader_id'),
-#                 "url": video_metadata.get('url'),
-#                 "video_id": video_metadata.get('video_id'),
-#                 "title": video_metadata.get('title'),
-#                 "description": video_metadata.get('description'),
-#                 "quality": video_metadata.get('quality'),
-#                 "duration": video_metadata.get('duration'),
-#                 "publish_time": video_metadata.get('publish_time')
-#             }
-#             save_metadata(metadata, metadata_file)
+        #     download_youtube_audio(video_id, download_folder)
 
-#             download_youtube_audio(video_id, download_folder)
+        #     print(f"Downloaded video and audio for: {video_metadata['title']}")
 
-#             print(f"Downloaded video and audio for: {video_metadata['title']}")
-
-#         except Exception as e:
-#             print(f"捕获到异常: {e}")  # 输出错误信息
+        except Exception as e:
+            print(f"捕获到异常: {e}")  # 输出错误信息
 
 
 ################合并音频和视频################
-import os
-import subprocess
+# import os
+# import subprocess
 
-# 文件路径
-audio_folder = r"/map-vepfs/dehua/data/image-video-bench/image-video-bench/youtube_downloads/audios"
-video_folder = r"/map-vepfs/dehua/data/image-video-bench/image-video-bench/youtube_downloads/videos"
-output_folder = r"/map-vepfs/dehua/data/image-video-bench/image-video-bench/youtube_downloads/outputs"
+# # 文件路径
+# audio_folder = r"/map-vepfs/dehua/data/image-video-bench/image-video-bench/youtube_downloads/audios"
+# video_folder = r"/map-vepfs/dehua/data/image-video-bench/image-video-bench/youtube_downloads/videos"
+# output_folder = r"/map-vepfs/dehua/data/image-video-bench/image-video-bench/youtube_downloads/outputs"
 
-# 确保输出文件夹存在
-os.makedirs(output_folder, exist_ok=True)
+# # 确保输出文件夹存在
+# os.makedirs(output_folder, exist_ok=True)
 
-# 获取音频和视频文件列表
-audio_files = {
-    os.path.splitext(f)[0]: audio_folder + "/" + f
-    for f in os.listdir(audio_folder)
-    if f.endswith(".mp3")
-}
-video_files = {
-    os.path.splitext(f)[0]: video_folder + "/" + f
-    for f in os.listdir(video_folder)
-    if f.endswith(".mp4")
-}
+# # 获取音频和视频文件列表
+# audio_files = {
+#     os.path.splitext(f)[0]: audio_folder + "/" + f
+#     for f in os.listdir(audio_folder)
+#     if f.endswith(".mp3")
+# }
+# video_files = {
+#     os.path.splitext(f)[0]: video_folder + "/" + f
+#     for f in os.listdir(video_folder)
+#     if f.endswith(".mp4")
+# }
 
-# ffmpeg的完整路径
-# ffmpeg_path = r"E:/ffmpeg/ffmpeg-master-latest-win64-gpl/bin/ffmpeg.exe"
-# ffmpeg的完整路径
-ffmpeg_path = "/usr/bin/ffmpeg"
+# # ffmpeg的完整路径
+# # ffmpeg_path = r"E:/ffmpeg/ffmpeg-master-latest-win64-gpl/bin/ffmpeg.exe"
+# # ffmpeg的完整路径
+# ffmpeg_path = "/usr/bin/ffmpeg"
 
-# 合并音频和视频
-for name, video_path in video_files.items():
-    if name in audio_files:
-        audio_path = audio_files[name]
-        output_path = output_folder + "/" + f"{name}.mp4"
-        if os.path.exists(output_path):  # 修正为 os.path.exists
-            print(f"{output_path} already exists")  # 文本表达更标准
-            continue
-        print(f"Processing: {name}")
+# # 合并音频和视频
+# for name, video_path in video_files.items():
+#     if name in audio_files:
+#         audio_path = audio_files[name]
+#         output_path = output_folder + "/" + f"{name}.mp4"
+#         if os.path.exists(output_path):  # 修正为 os.path.exists
+#             print(f"{output_path} already exists")  # 文本表达更标准
+#             continue
+#         print(f"Processing: {name}")
 
-        cmd = [
-            ffmpeg_path,
-            "-y",  # 覆盖输出文件而不提示
-            "-i",
-            video_path,
-            "-i",
-            audio_path,
-            # "-map", "0:v:0",    # 选择第一个输入的第一个视频流
-            # "-map", "1:a:0",    # 选择第二个输入的第一个音频流
-            "-c:v",
-            "copy",  # 复制视频流，不重新编码
-            "-c:a",
-            "aac",  # 使用AAC编码音频
-            "-shortest",  # 使输出长度与最短的输入流一致
-            output_path,
-        ]
+#         cmd = [
+#             ffmpeg_path,
+#             "-y",  # 覆盖输出文件而不提示
+#             "-i",
+#             video_path,
+#             "-i",
+#             audio_path,
+#             # "-map", "0:v:0",    # 选择第一个输入的第一个视频流
+#             # "-map", "1:a:0",    # 选择第二个输入的第一个音频流
+#             "-c:v",
+#             "copy",  # 复制视频流，不重新编码
+#             "-c:a",
+#             "aac",  # 使用AAC编码音频
+#             "-shortest",  # 使输出长度与最短的输入流一致
+#             output_path,
+#         ]
 
-        try:
-            # 执行ffmpeg命令并捕获输出
-            result = subprocess.run(
-                cmd,
-                check=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-            )
-            print(f"Output saved: {output_path}")
-        except subprocess.CalledProcessError as e:
-            print(f"Error processing {name}:")
-            print(e.stderr)
+#         try:
+#             # 执行ffmpeg命令并捕获输出
+#             result = subprocess.run(
+#                 cmd,
+#                 check=True,
+#                 stdout=subprocess.PIPE,
+#                 stderr=subprocess.PIPE,
+#                 text=True,
+#             )
+#             print(f"Output saved: {output_path}")
+#         except subprocess.CalledProcessError as e:
+#             print(f"Error processing {name}:")
+#             print(e.stderr)
 
-print("All files processed successfully.")
+# print("All files processed successfully.")
