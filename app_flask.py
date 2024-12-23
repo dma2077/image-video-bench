@@ -17,7 +17,7 @@ import markdown
 import shutil
 
 # ======== static and global variables ========
-static_root_path = "/Users/dehua/code/image-video-bench/videos"
+static_root_path = "./videos"
 # static_root_path = "E:/Code/image-video-bench/videos"
 
 app = Flask(__name__, static_folder=static_root_path)
