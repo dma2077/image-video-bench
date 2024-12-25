@@ -12,7 +12,7 @@ from tqdm import tqdm  # 导入tqdm
 # 需要的参数
 batch_size = 32
 num_epochs = 1
-output_file_path = "./sentence_embeddings_with_video_id.jsonl"
+output_file_path = "./sentence_embeddings_new.jsonl"
 
 # 配置分布式环境
 def setup(rank, world_size):

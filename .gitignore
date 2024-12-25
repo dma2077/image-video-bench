@@ -13,3 +13,4 @@ youtube_downloads
 videos/examples/youtube_sampled
 metadata.jsonl
 res/
+dwd_download_meta.jsonl

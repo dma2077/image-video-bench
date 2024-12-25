@@ -39,7 +39,7 @@ user_info_path = f"./{text_files_dir}/user_info.json"
 user_question_type_info_path = f"./{text_files_dir}/user_question_type_info.json"
 
 reported_problem_log = f"./{text_files_dir}/problem_reported.json"
-sampled_id_file = f"./{text_files_dir}/updated_sampled_videos_ids_1100.json"
+sampled_id_file = f"./{text_files_dir}/updated_sampled_videos_ids_1226.json"
 
 
 # ======== preparing video-ids and videos  =========
