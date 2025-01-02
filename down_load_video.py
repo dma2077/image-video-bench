@@ -69,10 +69,12 @@ def save_metadata(metadata, metadata_file):
 
 
 if __name__ == "__main__":
-    video_ids = []
-    with open('./sample_video_ids_1222.txt', 'r', encoding='utf-8') as file:
-        for line in file.readlines():
-            video_ids.append(line.strip())
+    video_ids = ['xghHKy5XZVw', '5hvOA29gsTk', 'NrZxgc-2Nbw', '_Nv9hI7kYxA', '8TxnAI6bU5w', 'IOq-zV6aDmA', 'D7Y2bTqjvh8',
+                 'Lt26fwY2YH8', 'uxYHnlJ1eWs', 'f3SAMVhpBmI', 'dhEda8hcl74', 'KzDDon_aQ6Y', 'Zc5VTiugwzo', 'BcO_vrtMhpM',
+                   'IHSd7cF5HiA']
+    # with open('./sample_video_ids_1222.txt', 'r', encoding='utf-8') as file:
+    #     for line in file.readlines():
+    #         video_ids.append(line.strip())
     download_folder = "youtube_downloads"
     metadata_file = "metadata.jsonl"
     create_download_folder(download_folder)
@@ -81,25 +83,25 @@ if __name__ == "__main__":
         try:
             video_metadata = download_youtube_video(video_id, download_folder)
             print(video_metadata)
-        #     # 保存单一元数据格式
-        #     metadata = {
-        #         "cate": video_metadata.get('cate'),
-        #         "query": video_metadata.get('query'),
-        #         "uploader": video_metadata.get('uploader'),
-        #         "uploader_id": video_metadata.get('uploader_id'),
-        #         "url": video_metadata.get('url'),
-        #         "video_id": video_metadata.get('video_id'),
-        #         "title": video_metadata.get('title'),
-        #         "description": video_metadata.get('description'),
-        #         "quality": video_metadata.get('quality'),
-        #         "duration": video_metadata.get('duration'),
-        #         "publish_time": video_metadata.get('publish_time')
-        #     }
-        #     save_metadata(metadata, metadata_file)
+            # 保存单一元数据格式
+            metadata = {
+                "cate": video_metadata.get('cate'),
+                "query": video_metadata.get('query'),
+                "uploader": video_metadata.get('uploader'),
+                "uploader_id": video_metadata.get('uploader_id'),
+                "url": video_metadata.get('url'),
+                "video_id": video_metadata.get('video_id'),
+                "title": video_metadata.get('title'),
+                "description": video_metadata.get('description'),
+                "quality": video_metadata.get('quality'),
+                "duration": video_metadata.get('duration'),
+                "publish_time": video_metadata.get('publish_time')
+            }
+            save_metadata(metadata, metadata_file)
 
-        #     download_youtube_audio(video_id, download_folder)
+            download_youtube_audio(video_id, download_folder)
 
-        #     print(f"Downloaded video and audio for: {video_metadata['title']}")
+            print(f"Downloaded video and audio for: {video_metadata['title']}")
 
         except Exception as e:
             print(f"捕获到异常: {e}")  # 输出错误信息
