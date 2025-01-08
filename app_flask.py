@@ -39,7 +39,7 @@ user_info_path = f"./{text_files_dir}/user_info.json"
 user_question_type_info_path = f"./{text_files_dir}/user_question_type_info.json"
 
 reported_problem_log = f"./{text_files_dir}/problem_reported.json"
-sampled_id_file = f"./{text_files_dir}/updated_sampled_videos_ids_1226.json"
+sampled_id_file = f"./{text_files_dir}/updated_sampled_videos_ids_0103.json"
 
 
 # ======== preparing video-ids and videos  =========
@@ -112,7 +112,12 @@ for user in users:
 annotators = users
 answers_all = []
 VALIDATE_USER_NAME = "video_admin"
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
+ALLOWED_EXTENSIONS = {
+    "png", "jpg", "jpeg", "gif", "webp", "bmp", "tiff", "tif", "heic", "heif", 
+    "svg", "psd", "eps", "ai", "pdf", "raw", "cr2", "nef", "arw", "orf", "raf", 
+    "dng", "ico", "xcf", "dds", "tga", "avif", "exr", "pcx", "pict", "pic"
+}
+
 
 # ======== user login part ========
 class User(UserMixin):

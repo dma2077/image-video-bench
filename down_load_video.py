@@ -18,6 +18,8 @@ def download_youtube_video(video_id, download_folder):
         "format": "bestvideo[height<=1080][ext=mp4]",  # 下载最佳 MP4 格式视频
         "outtmpl": os.path.join(video_folder, "%(id)s.%(ext)s"),  # 设置保存文件名
         "quiet": False,  # 输出详细信息
+        "cookies": "/Users/dehua/code/image-video-bench/www.youtube.com_cookies.txt",
+        #"cookiesfrombrowser": ("chrome",),  # 替换为您使用的浏览器
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -69,17 +71,41 @@ def save_metadata(metadata, metadata_file):
 
 
 if __name__ == "__main__":
-    video_ids = ['xghHKy5XZVw', '5hvOA29gsTk', 'NrZxgc-2Nbw', '_Nv9hI7kYxA', '8TxnAI6bU5w', 'IOq-zV6aDmA', 'D7Y2bTqjvh8',
-                 'Lt26fwY2YH8', 'uxYHnlJ1eWs', 'f3SAMVhpBmI', 'dhEda8hcl74', 'KzDDon_aQ6Y', 'Zc5VTiugwzo', 'BcO_vrtMhpM',
-                   'IHSd7cF5HiA']
-    # with open('./sample_video_ids_1222.txt', 'r', encoding='utf-8') as file:
-    #     for line in file.readlines():
-    #         video_ids.append(line.strip())
+
+    import os
+    import json
+
+    def collect_video_ids(directory):
+        video_ids = []  # 用于存储所有的 video id
+
+        # 遍历目录中的所有文件
+        for filename in os.listdir(directory):
+            if filename.endswith(".jsonl"):  # 只处理 .jsonl 文件
+                filepath = os.path.join(directory, filename)
+                with open(filepath, "r", encoding="utf-8") as file:
+                    for line in file:
+                        # 加载每一行 JSON 数据
+                        data = json.loads(line.strip())
+                        if (
+                            isinstance(data, dict) and len(data) == 1
+                        ):  # 确保数据是字典且只有一个键
+                            video_id = list(data.keys())[0]  # 获取键（video id）
+                            video_ids.append(video_id)  # 添加到列表中
+
+        return video_ids
+
+    # 指定目录路径
+    directory_path = (
+        "./res/res_current"
+    )
+
+    # 调用函数
+    all_video_ids = collect_video_ids(directory_path)
     download_folder = "youtube_downloads"
     metadata_file = "metadata.jsonl"
     create_download_folder(download_folder)
 
-    for video_id in video_ids:
+    for video_id in all_video_ids:
         try:
             video_metadata = download_youtube_video(video_id, download_folder)
             print(video_metadata)
