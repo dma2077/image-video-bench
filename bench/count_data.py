@@ -61,7 +61,7 @@ def analyze_data(directory):
     return total_data_count, avg_dict_per_line, yes_no_ratio, number_ratio, question_type_ratio
 
 # 指定路径
-directory_path = "/Users/dehua/code/image-video-bench/res/res_current"
+directory_path = "/Users/dehua/code/image-video-bench/res/res_current/dehua"
 total_data_count, avg_dict_per_line, yes_no_ratio, number_ratio, question_type_ratio = analyze_data(directory_path)
 
 # 输出结果
