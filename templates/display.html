@@ -103,6 +103,9 @@
                                 {% if type in selected_question_types and not annotation.question_type %}
                                     class="required"
                                 {% endif %}
+                                {% if type in ["Summary", "Details Event", "Counting", "Existence"] %}
+                                    disabled
+                                {% endif %}
                                 >
                                 {{ type }}
                                 {% if type in selected_question_types and not annotation.question_type %}
