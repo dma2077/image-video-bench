@@ -164,8 +164,8 @@
         "username": "user2",
         "s_idx": 1150,
         "e_idx": 1199,
-        "current_idx": 16,
-        "video_question_idx": 3
+        "current_idx": 0,
+        "video_question_idx": 0
     },
     "user3": {
         "username": "user3",
@@ -178,7 +178,7 @@
         "username": "user4",
         "s_idx": 1250,
         "e_idx": 1299,
-        "current_idx": 0,
+        "current_idx": 39,
         "video_question_idx": 0
     },
     "user5": {
