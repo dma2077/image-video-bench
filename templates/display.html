@@ -86,17 +86,10 @@
                         </option>
                         
                         {% for type in [
-                            "Summary",
                             "Spatial relationship",
-                            "Existence",
-                            "Reverse Existence",
-                            "NLI",
-                            "Details Event",
                             "Instruction manual",
                             "Keyframe extraction",
-                            "Counting",
                             "Space-time computing",
-                            "Constrained OCR"
                         ] %}
                             <option value="{{ type }}" 
                                 {% if annotation.question_type == type %}selected{% endif %}
