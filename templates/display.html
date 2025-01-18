@@ -86,17 +86,26 @@
                         </option>
                         
                         {% for type in [
+                            "Summary",
+                            "Existence",
+                            "Constrained OCR",
+                            "Reverse Existence",
+                            "NLI",
+                            "Details Event",
+                            "Counting",
+                            "Keyframe extraction",
                             "Spatial relationship",
                             "Instruction manual",
-                            "Keyframe extraction",
                             "Space-time computing",
+                            "Attribute Change",
+                            "Temporal Reasoning"
                         ] %}
                             <option value="{{ type }}" 
                                 {% if annotation.question_type == type %}selected{% endif %}
                                 {% if type in selected_question_types and not annotation.question_type %}
                                     class="required"
                                 {% endif %}
-                                {% if type in ["Summary", "Details Event", "Counting", "Existence"] %}
+                                {% if type in ["Summary", "Details Event", "Counting", "Existence", "NLI", "Constrained OCR", "Reverse Existence", "Keyframe extraction", "Spatial relationship"] %}
                                     disabled
                                 {% endif %}
                                 >

@@ -185,8 +185,8 @@
         "username": "user5",
         "s_idx": 1300,
         "e_idx": 1349,
-        "current_idx": 0,
-        "video_question_idx": 0
+        "current_idx": 7,
+        "video_question_idx": 1
     },
     "user6": {
         "username": "user6",
@@ -199,8 +199,8 @@
         "username": "user7",
         "s_idx": 1400,
         "e_idx": 1449,
-        "current_idx": 0,
-        "video_question_idx": 0
+        "current_idx": 7,
+        "video_question_idx": 3
     },
     "user8": {
         "username": "user8",
@@ -213,7 +213,7 @@
         "username": "user9",
         "s_idx": 1500,
         "e_idx": 1549,
-        "current_idx": 0,
+        "current_idx": 1,
         "video_question_idx": 0
     },
     "user10": {
@@ -234,7 +234,7 @@
         "username": "user12",
         "s_idx": 1650,
         "e_idx": 1699,
-        "current_idx": 0,
+        "current_idx": 15,
         "video_question_idx": 0
     },
     "user13": {

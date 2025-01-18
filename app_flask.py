@@ -314,6 +314,7 @@ def display():
         prompt = text_prompts_en[current_video_idx].get("text", "")
         if current_annotation["image_name"] != '':
             current_annotation["image_name"] = os.path.join(session["image_root"], current_annotation["image_name"])
+            current_annotation["image_name"] = os.path.normpath(current_annotation["image_name"])
             image_name = current_annotation["image_name"]
             print(f"image_name is:{image_name}")
 

@@ -12,7 +12,7 @@ sample_video_ids_1222.txt
 youtube_downloads
 videos/examples/youtube_sampled
 metadata.jsonl
-res/
+res/*
 dwd_download_meta.jsonl
 users_data
 templates/display1.html
