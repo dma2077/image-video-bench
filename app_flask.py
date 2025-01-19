@@ -567,6 +567,7 @@ def update_annotation_file(ans_file, vid_name, annotations):
 
     annotation_dict[vid_name] = annotations
     # 写回 ans_file
+    os.makedirs(os.path.dirname(ans_file), exist_ok=True)
     with open(ans_file, "w", encoding="utf-8") as f:
         for vid_name, datas in annotation_dict.items():
             json.dump({vid_name: datas}, f, ensure_ascii=False)
