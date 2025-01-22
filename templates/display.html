@@ -94,9 +94,9 @@
                             "Details Event",
                             "Counting",
                             "Keyframe extraction",
-                            "Spatial relationship",
                             "Instruction manual",
                             "Space-time computing",
+                            "Spatial relationship",
                             "Attribute Change",
                             "Temporal Reasoning"
                         ] %}
@@ -105,7 +105,7 @@
                                 {% if type in selected_question_types and not annotation.question_type %}
                                     class="required"
                                 {% endif %}
-                                {% if type in ["Summary", "Details Event", "Counting", "Existence", "NLI", "Constrained OCR", "Reverse Existence", "Keyframe extraction", "Spatial relationship"] %}
+                                {% if type in ["Summary", "Details Event", "Counting", "Existence", "NLI", "Constrained OCR", "Reverse Existence", "Keyframe extraction", "Space-time computing", "Instruction manual"] %}
                                     disabled
                                 {% endif %}
                                 >

@@ -16,3 +16,4 @@ res/*
 dwd_download_meta.jsonl
 users_data
 templates/display1.html
+metadata.jsonl
