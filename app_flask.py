@@ -42,6 +42,31 @@ reported_problem_log = f"./{text_files_dir}/problem_reported.json"
 sampled_id_file = f"./{text_files_dir}/updated_sampled_videos_ids_0109.json"
 
 
+title_template_file = f"./{text_files_dir}/annonation_template.json"
+distractors_template_file = f"./{text_files_dir}/distractors_template.json"
+
+with open(title_template_file, "r", encoding="utf-8") as f:
+    title_template_data = json.load(f)
+with open(distractors_template_file, "r", encoding="utf-8") as f:
+    distractors_template_data = json.load(f)
+
+
+
+# 替换 title_template_data 中的 Undefined 或 None 值
+def clean_data(data):
+    if isinstance(data, dict):
+        return {k: clean_data(v) for k, v in data.items()}
+    elif isinstance(data, list):
+        return [clean_data(v) for v in data]
+    elif data is None:  # 你也可以根据需要修改这里
+        return ""  # 替换为适当的默认值
+    return data
+
+
+title_template_data = clean_data(json.dumps(title_template_data, ensure_ascii=False))
+# title_template_data = json.dumps(title_template_data, ensure_ascii="flase")
+distractors_template_data = clean_data(json.dumps(distractors_template_data, ensure_ascii=False))
+
 # ======== preparing video-ids and videos  =========
 video_id_list = []
 videos = []
@@ -318,6 +343,7 @@ def display():
             image_name = current_annotation["image_name"]
             print(f"image_name is:{image_name}")
 
+
         return render_template(
             html_file,
             before_start_anno=before_start_anno,
@@ -332,9 +358,10 @@ def display():
             video_question_idx=video_question_idx,
             selected_question_types=current_question_types,
             annotations=annotations,  # 传递所有标注
+            title_template=title_template_data,
+            distractors_template=distractors_template_data,
             _is_val=0,
         )  # 传递 end_index 给模板
-
     else:
         current_video_idx = 0
         session["current_idx"] = current_video_idx
@@ -764,9 +791,9 @@ def submit():
         # 处理删除操作
         annotations = load_annotations(ans_file, vid_name)
 
-        if len(annotations) <= 1:
-            flash("每个视频至少保留一条数据，无法删除。")
-            return redirect(url_for("display"))
+        # if len(annotations) <= 1:
+        #     flash("每个视频至少保留一条数据，无法删除。")
+        #     return redirect(url_for("display"))
 
         adjust_image_filenames(vid_name, app.config["UPLOAD_FOLDER"], annotations, 'delete', video_question_idx)
 

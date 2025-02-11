@@ -17,3 +17,9 @@ dwd_download_meta.jsonl
 users_data
 templates/display1.html
 metadata.jsonl
+videos/upload_images.zip
+videos/old_images/
+read_json.py
+bench/plot_distribution.py
+bench/plot_category.py
+bench/merge_data.py

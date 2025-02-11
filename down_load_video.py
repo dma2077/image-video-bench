@@ -26,12 +26,31 @@ def verify_file_integrity(filepath):
 def download_youtube_video(video_id, download_folder):
     video_folder = os.path.join(download_folder, "videos")
     create_download_folder(video_folder)
+    video_path = os.path.join(video_folder, f"{video_id}.mp4")
 
+    # 1. 前检测：如果文件已存在，则直接返回占位的元数据，跳过所有下载操作（包括 cookies 读取）
+    if os.path.exists(video_path):
+        print(f"视频文件已存在，跳过下载：{video_path}")
+        return {
+            "cate": None,
+            "query": None,
+            "uploader": None,
+            "uploader_id": None,
+            "url": None,
+            "video_id": video_id,
+            "title": "已存在的视频，未获取新元数据",
+            "description": "",
+            "quality": "",
+            "duration": 0,
+            "publish_time": "",
+        }
+
+    # 2. 如果文件不存在，则执行原有逻辑
     ydl_opts = {
         "format": "bestvideo[height<=1080][ext=mp4]",
         "outtmpl": os.path.join(video_folder, "%(id)s.%(ext)s"),
         "quiet": False,
-        ##"cookies": "/Users/dehua/code/image-video-bench/cookies.json",
+        # "cookies": "/Users/dehua/code/image-video-bench/cookies.json",  # 如有需要可保留
         "cookiesfrombrowser": ("chrome",),  # 使用 Chrome 浏览器的 Cookie
         # 增加鲁棒性选项
         "retries": 10,
@@ -64,7 +83,14 @@ def download_youtube_video(video_id, download_folder):
 def download_youtube_audio(video_id, download_folder):
     audio_folder = os.path.join(download_folder, "audios")
     create_download_folder(audio_folder)
+    audio_path = os.path.join(audio_folder, f"{video_id}.mp3")
 
+    # 1. 前检测：如果文件已存在，则直接返回，跳过所有下载操作（包括 cookies 读取）
+    if os.path.exists(audio_path):
+        print(f"音频文件已存在，跳过下载：{audio_path}")
+        return
+
+    # 2. 如果文件不存在，则执行原有逻辑
     ydl_opts = {
         "format": "bestaudio/best",
         "outtmpl": os.path.join(audio_folder, "%(id)s.%(ext)s"),
@@ -120,8 +146,10 @@ if __name__ == "__main__":
     for video_id in all_video_ids:
         for attempt in range(MAX_RETRIES):
             try:
+                # 1. 下载并获取视频元数据（如果视频已存在则不会再次下载，会直接返回占位信息）
                 video_metadata = download_youtube_video(video_id, download_folder)
 
+                # 2. 组装/保存元数据
                 metadata = {
                     "cate": video_metadata.get('cate'),
                     "query": video_metadata.get('query'),
@@ -137,17 +165,19 @@ if __name__ == "__main__":
                 }
                 save_metadata(metadata, metadata_file)
 
+                # 3. 下载音频（如果音频已存在则不会再次下载）
                 download_youtube_audio(video_id, download_folder)
 
-                # 可选：验证下载的视频和音频完整性
+                # 4. 可选：验证下载的视频和音频完整性
                 video_path = os.path.join(download_folder, "videos", f"{video_id}.mp4")
                 audio_path = os.path.join(download_folder, "audios", f"{video_id}.mp3")
-                if not verify_file_integrity(video_path):
+
+                if os.path.exists(video_path) and not verify_file_integrity(video_path):
                     print(f"视频文件 {video_path} 检测失败。")
-                if not verify_file_integrity(audio_path):
+                if os.path.exists(audio_path) and not verify_file_integrity(audio_path):
                     print(f"音频文件 {audio_path} 检测失败。")
 
-                print(f"Downloaded video and audio for: {video_metadata['title']}")
+                print(f"已处理视频 ID: {video_id}，标题: {video_metadata['title']}")
                 break  # 成功后跳出重试循环
 
             except Exception as e:

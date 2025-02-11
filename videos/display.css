@@ -16,6 +16,10 @@ body, html {
     box-sizing: border-box;
 }
 
+/* 或者你也可以使用一个额外的 spacer div 来增加间距 */
+.spacer {
+    height: 15px;  /* 控制两个下拉框之间的间距 */
+}
 /* 左侧栏样式 */
 .left-column {
     flex: 1;
