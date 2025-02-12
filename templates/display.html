@@ -453,31 +453,17 @@
                 inputField.addEventListener('input', function() {
                     let inputValue = this.value;
 
-                    // 去除非数字字符，只保留数字
-                    inputValue = inputValue.replace(/\D/g, '');
-
-                    // 处理输入的四位或八位数字
-                    if (inputValue.length === 4) {
-                        // 四位数字格式，例如 1011 转为 10:11
-                        // if (inputValue[0] === '0') {
-                        //     // 如果第一位是0，则去除0，显示为 11:11
-                        //     inputValue = inputValue.slice(1);
-                        // }
-                        // 确保是有效的时间格式
-                        if (inputValue.length === 4) {
-                            this.value = inputValue.slice(0, 2) + ':' + inputValue.slice(2); // 转换为 10:11 的格式
-                        }
-                    } else if (inputValue.length === 8) {
-                        // 八位数字格式，例如 10112022 转为 10:11-20:22
+                    // 检查是否为纯数字并且长度为4或8
+                    if (/^\d{4}$/.test(inputValue)) {
+                        // 四位数字，转为 10:11 格式
+                        this.value = inputValue.slice(0, 2) + ':' + inputValue.slice(2);
+                    } else if (/^\d{8}$/.test(inputValue)) {
+                        // 八位数字，转为 10:11-20:22 格式
                         const start = inputValue.slice(0, 4);
                         const end = inputValue.slice(4);
-
-                        // 确保开始和结束时间的格式正确
-                        if (start.length === 4 && end.length === 4) {
-                            this.value = start.slice(0, 2) + ':' + start.slice(2) + '-' + end.slice(0, 2) + ':' + end.slice(2);
-                        }
+                        this.value = start.slice(0, 2) + ':' + start.slice(2) + '-' + end.slice(0, 2) + ':' + end.slice(2);
                     } else {
-                        // 对于不符合四位或八位格式的输入，保持原样输入
+                        // 不符合四位或八位纯数字格式时，保持原样
                         this.value = inputValue;
                     }
                 });
