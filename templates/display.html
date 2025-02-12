@@ -316,7 +316,6 @@
         });
     </script>
 
-
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const questionTypeSelect = document.getElementById('question_type');
@@ -353,9 +352,35 @@
             let originalAnswer = answerField.value;
             let originalDistractors = Array.from(distractorFields).map(field => field.value);
 
+            // 用来标记是否是类型切换触发的更新
+            let isTypeChanged = false;
+
             function updateFields() {
                 const selectedType = questionTypeSelect.value;
                 const options = optionsData[selectedType] || [];
+
+                // 如果是类型切换，则不受字段为空的限制
+                if (isTypeChanged) {
+                    // 进行类型切换后直接填充
+                    isTypeChanged = false; // 重置类型切换标志
+                    if (options.length > 0) {
+                        // 填充答案
+                        answerField.value = options[0]; // 默认填充第一个选项为答案
+
+                        // 填充干扰项
+                        const distractorValues = options.slice(1, 10); // 选择除了第一个选项的其他项作为干扰项
+                        distractorFields.forEach((input, index) => {
+                            input.value = distractorValues[index] || ''; // 填充干扰项，若没有则为空
+                        });
+                    } else {
+                        // 如果没有选项，则恢复原有答案和干扰项
+                        answerField.value = originalAnswer;
+                        distractorFields.forEach((input, index) => {
+                            input.value = originalDistractors[index];
+                        });
+                    }
+                    return; // 跳出函数，避免继续执行“所有字段为空才填充”的逻辑
+                }
 
                 // 检查是否所有字段都为空
                 const allFieldsEmpty = !answerField.value && Array.from(distractorFields).every(input => !input.value);
@@ -393,7 +418,10 @@
             }
 
             // 监听问题类型选择变化
-            questionTypeSelect.addEventListener('change', updateFields);
+            questionTypeSelect.addEventListener('change', function() {
+                isTypeChanged = true; // 标记为类型切换
+                updateFields(); // 立即更新字段
+            });
 
             // 页面加载时初始化
             if (questionTypeSelect.value) {
