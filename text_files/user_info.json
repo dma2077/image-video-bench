@@ -3,7 +3,7 @@
         "username": "dehua1",
         "s_idx": 0,
         "e_idx": 49,
-        "current_idx": 22,
+        "current_idx": 42,
         "video_question_idx": 1
     },
     "dehua2": {
@@ -73,8 +73,8 @@
         "username": "zhongyuan5",
         "s_idx": 500,
         "e_idx": 549,
-        "current_idx": 1,
-        "video_question_idx": 0
+        "current_idx": 49,
+        "video_question_idx": 10
     },
     "zhongyuan6": {
         "username": "zhongyuan6",
@@ -123,14 +123,14 @@
         "s_idx": 850,
         "e_idx": 899,
         "current_idx": 48,
-        "video_question_idx": 2
+        "video_question_idx": 0
     },
     "majun5": {
         "username": "majun5",
         "s_idx": 900,
         "e_idx": 949,
-        "current_idx": 32,
-        "video_question_idx": 3
+        "current_idx": 15,
+        "video_question_idx": 2
     },
     "majun6": {
         "username": "majun6",
