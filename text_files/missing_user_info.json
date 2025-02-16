@@ -1,0 +1,204 @@
+{
+    "dehua1": {
+        "username": "dehua1",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "dehua2": {
+        "username": "dehua2",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "dehua3": {
+        "username": "dehua3",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "dehua4": {
+        "username": "dehua4",
+        "s_idx": 0,
+        "e_idx": 0,
+        "current_idx": 0,
+        "video_question_idx": 2
+    },
+    "dehua5": {
+        "username": "dehua5",
+        "s_idx": 1,
+        "e_idx": 23
+    },
+    "dehua6": {
+        "username": "dehua6",
+        "s_idx": 24,
+        "e_idx": 58
+    },
+    "zhongyuan1": {
+        "username": "zhongyuan1",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "zhongyuan2": {
+        "username": "zhongyuan2",
+        "s_idx": 59,
+        "e_idx": 76
+    },
+    "zhongyuan3": {
+        "username": "zhongyuan3",
+        "s_idx": 77,
+        "e_idx": 91
+    },
+    "zhongyuan4": {
+        "username": "zhongyuan4",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "zhongyuan5": {
+        "username": "zhongyuan5",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "zhongyuan6": {
+        "username": "zhongyuan6",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "zhongyuan7": {
+        "username": "zhongyuan7",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "zhongyuan8": {
+        "username": "zhongyuan8",
+        "s_idx": 92,
+        "e_idx": 116
+    },
+    "majun1": {
+        "username": "majun1",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "majun2": {
+        "username": "majun2",
+        "s_idx": 117,
+        "e_idx": 117
+    },
+    "majun3": {
+        "username": "majun3",
+        "s_idx": 118,
+        "e_idx": 131
+    },
+    "majun4": {
+        "username": "majun4",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "majun5": {
+        "username": "majun5",
+        "s_idx": 132,
+        "e_idx": 142
+    },
+    "majun6": {
+        "username": "majun6",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "majun7": {
+        "username": "majun7",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "majun8": {
+        "username": "majun8",
+        "s_idx": 143,
+        "e_idx": 153
+    },
+    "user1": {
+        "username": "user1",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "user2": {
+        "username": "user2",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "user3": {
+        "username": "user3",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "user4": {
+        "username": "user4",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "user5": {
+        "username": "user5",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "user6": {
+        "username": "user6",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "user7": {
+        "username": "user7",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "user8": {
+        "username": "user8",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "user9": {
+        "username": "user9",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "user10": {
+        "username": "user10",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "user11": {
+        "username": "user11",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "user12": {
+        "username": "user12",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "user13": {
+        "username": "user13",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "user14": {
+        "username": "user14",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "user15": {
+        "username": "user15",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "user16": {
+        "username": "user16",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "user17": {
+        "username": "user17",
+        "s_idx": null,
+        "e_idx": null
+    },
+    "user18": {
+        "username": "user18",
+        "s_idx": null,
+        "e_idx": null
+    }
+}
