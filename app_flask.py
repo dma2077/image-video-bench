@@ -353,6 +353,7 @@ def display():
             current_idx=current_video_idx,
             vid_name=vid_name,
             video=video,
+            username=username,
             text_prompt=prompt,
             annotation=current_annotation,
             video_question_idx=video_question_idx,

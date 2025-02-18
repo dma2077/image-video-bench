@@ -67,6 +67,7 @@
                 <input type="hidden" name="existing_image" value="{{ annotation.image }}">
                 <input type="hidden" name="title_template" value="{{ title_template }}">
                 <input type="hidden" name="distractors_template" value="{{ distractors_template }}">
+                <input type="hidden" name="username" value="{{ username }}">
 
                 <div class="input-fields">
                     <!-- 问题类型选择 -->
@@ -75,20 +76,27 @@
                         <option value="" disabled {% if not annotation.question_type %}selected{% endif %}>
                             Please select the type of question
                         </option>
-                        {% for type in [
-                            "Summary", "Existence", "Constrained OCR", "Reverse Existence", "NLI",
-                            "Details Event", "Counting", "Keyframe extraction", "Instruction manual",
-                            "Space-time computing", "Spatial relationship", "Attribute Change", "Temporal Reasoning"
-                        ] %}
-                            <option value="{{ type }}" 
-                                {% if annotation.question_type == type %}selected{% endif %}
-                                {% if type in selected_question_types and not annotation.question_type %}
-                                    class="required"
-                                {% endif %}>
-                                {{ type }}
-                            </option>
-                        {% endfor %}
+                        
+                        {% if username == 'user18' %}
+                            <!-- 设置所有问题类型为 'Instruction manual' -->
+                            <option value="Instruction manual" selected>Instruction manual</option>
+                        {% else %}
+                            {% for type in [
+                                "Summary", "Existence", "Constrained OCR", "Reverse Existence", "NLI",
+                                "Details Event", "Counting", "Keyframe extraction", "Instruction manual",
+                                "Space-time computing", "Spatial relationship", "Attribute Change", "Temporal Reasoning"
+                            ] %}
+                                <option value="{{ type }}" 
+                                    {% if annotation.question_type == type %}selected{% endif %}
+                                    {% if type in selected_question_types and not annotation.question_type %}
+                                        class="required"
+                                    {% endif %}>
+                                    {{ type }}
+                                </option>
+                            {% endfor %}
+                        {% endif %}
                     </select>
+
 
                         <!-- 添加间距的 CSS 类 -->
                     <div class="spacer"></div>
@@ -105,9 +113,15 @@
                     <label for="granularity">Granularity:</label>
                     <select id="granularity" name="granularity" required {% if question_type in ['NLI', 'Existence', 'Reverse Existence'] %}disabled{% endif %}>
                         <option value="" disabled {% if not annotation.granularity and question_type not in ['NLI', 'Existence', 'Reverse Existence'] %}selected{% endif %}>Please select the video granularity</option>
-                        <option value="Video Frame" {% if annotation.granularity == 'Video Frame' and question_type not in ['NLI', 'Existence', 'Reverse Existence'] %}selected{% endif %}>Video Frame</option>
-                        <option value="Video Clip" {% if annotation.granularity == 'Video Clip' and question_type not in ['NLI', 'Existence', 'Reverse Existence'] %}selected{% endif %}>Video Clip</option>
-                        <option value="Whole Video" {% if annotation.granularity == 'Whole Video' or question_type in ['NLI', 'Existence', 'Reverse Existence'] %}selected{% endif %}>Whole Video</option>
+                        
+                        {% if username == 'user18' %}
+                            <!-- 设置 granularity 为 "Video Clip" -->
+                            <option value="Video Clip" selected>Video Clip</option>
+                        {% else %}
+                            <option value="Video Frame" {% if annotation.granularity == 'Video Frame' and question_type not in ['NLI', 'Existence', 'Reverse Existence'] %}selected{% endif %}>Video Frame</option>
+                            <option value="Video Clip" {% if annotation.granularity == 'Video Clip' and question_type not in ['NLI', 'Existence', 'Reverse Existence'] %}selected{% endif %}>Video Clip</option>
+                            <option value="Whole Video" {% if annotation.granularity == 'Whole Video' or question_type in ['NLI', 'Existence', 'Reverse Existence'] %}selected{% endif %}>Whole Video</option>
+                        {% endif %}
                     </select>
 
                     <label for="answer">Answer:</label>
@@ -232,10 +246,10 @@
                         "在视频中，图中的内容在什么时间出现？"
                     ],
                     "Instruction manual": [
-                        "根据视频，图片中内容的作用是什么？",
-                        "根据视频，图片中内容的影响是什么？",
-                        "根据视频，图片中内容的原因是什么？",
-                        "根据视频，图片中内容的定义是什么？"
+                        "在视频中，类似图中的内容被用于制作什么？",
+                        "在视频中，类似图中的内容使用什么制作？",
+                        "在视频中，类似图中的内容的作用是什么？"
+
                     ],
                     "Attribute Change": [
                         "在视频中，类似图中的内容的第xxx次属性变化在什么时间。",
