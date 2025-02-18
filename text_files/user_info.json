@@ -101,8 +101,8 @@
         "username": "majun1",
         "s_idx": 700,
         "e_idx": 749,
-        "current_idx": 3,
-        "video_question_idx": 1
+        "current_idx": 49,
+        "video_question_idx": 2
     },
     "majun2": {
         "username": "majun2",
@@ -199,7 +199,7 @@
         "username": "user7",
         "s_idx": 1400,
         "e_idx": 1449,
-        "current_idx": 7,
+        "current_idx": 19,
         "video_question_idx": 3
     },
     "user8": {
@@ -274,8 +274,8 @@
     },
     "user18": {
         "username": "user18",
-        "s_idx": 1950,
-        "e_idx": 1999,
+        "s_idx": 1877,
+        "e_idx": 1911,
         "current_idx": 0,
         "video_question_idx": 0
     }

@@ -94,7 +94,9 @@
     "majun5": {
         "username": "majun5",
         "s_idx": 132,
-        "e_idx": 142
+        "e_idx": 142,
+        "current_idx": 10,
+        "video_question_idx": 1
     },
     "majun6": {
         "username": "majun6",
@@ -109,7 +111,9 @@
     "majun8": {
         "username": "majun8",
         "s_idx": 143,
-        "e_idx": 153
+        "e_idx": 153,
+        "current_idx": 10,
+        "video_question_idx": 1
     },
     "user1": {
         "username": "user1",

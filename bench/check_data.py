@@ -1,39 +1,52 @@
+import os
 import json
-# 检查生成的JSON文件中是否有重复元素
 
+# 根目录路径
+jsonl_directory = '/Users/dehua/code/image-video-bench/res/2_12'
+image_directory_base = '/Users/dehua/code/image-video-bench/videos/upload_images'
 
-output_file = '/Users/dehua/code/image-video-bench/text_files/updated_sampled_videos_ids_0109.json'
-# 检查生成的JSON文件中是否有重复元素，并移除索引大于1100的重复项
-def check_and_remove_duplicates(json_file):
-    try:
-        with open(json_file, 'r') as f:
-            data = json.load(f)
-            sampled_ids = data.get("sampled_id", [])
-            duplicates = {}
-            for i, item in enumerate(sampled_ids):
-                if sampled_ids.count(item) > 1:
-                    if item not in duplicates:
-                        duplicates[item] = []
-                    duplicates[item].append(i)
-            print(duplicates)
-            # 移除索引大于1100的重复项
-            to_remove = set()
-            for dup, indices in duplicates.items():
-                for idx in indices:
-                    if idx > 1100:
-                        to_remove.add(idx)
+# 存储缺失文件的记录
+missing_files = set()
 
-            # 创建新的列表，移除需要删除的索引
-            sampled_ids = [item for i, item in enumerate(sampled_ids) if i not in to_remove]
+# 获取jsonl目录下的所有jsonl文件
+jsonl_files = [f for f in os.listdir(jsonl_directory) if f.endswith('.jsonl')]
 
-        # # 将更新后的数据写回文件
-        with open(json_file, 'w') as f:
-            json.dump({"sampled_id": sampled_ids}, f, indent=4)
+# 遍历所有jsonl文件
+for jsonl_file in jsonl_files:
+    # 提取文件名中的用户名部分
+    username = jsonl_file.split('_')[1].split('.')[0]  # 假设文件命名格式为 ans_dehua1.jsonl
+    
+    # 对应的图片目录路径
+    image_directory = os.path.join(image_directory_base, username)
+    
+    # 读取jsonl文件内容
+    with open(os.path.join(jsonl_directory, jsonl_file), 'r', encoding='utf-8') as file:
+        lines = file.readlines()
 
-        print(f"Removed {len(to_remove)} items with indices > 1100.")
-    except Exception as e:
-        print(f"Error checking duplicates in {json_file}: {e}")
+    # 遍历每一行
+    for line in lines:
+        data = json.loads(line.strip())
+        
+        # 遍历所有的键
+        for key, value in data.items():
+            # 如果键对应的值是一个列表
+            if isinstance(value, list):
+                # 遍历列表中的每个字典
+                for item in value:
+                    image_name = item.get('image_name')
+                    
+                    if image_name:
+                        # 检查文件是否存在于图片目录中
+                        image_path = os.path.join(image_directory, image_name)
+                        if not os.path.exists(image_path):
+                            missing_files.add((jsonl_file, key, image_name))  # 记录缺失的文件、键名和文件名
 
-check_and_remove_duplicates(output_file)
-
-print("Processing complete!")
+# 输出缺失文件的信息以及个数
+if missing_files:
+    print("以下文件不存在于目标图片目录中:")
+    for jsonl_file, key, image_name in missing_files:
+        print(f"JSONL文件: {jsonl_file}, 键: {key}, 文件: {image_name}")
+    
+    print(f"\n总共有 {len(missing_files)} 个文件不存在于目标图片目录中")
+else:
+    print("所有文件都存在于目标图片目录中")
