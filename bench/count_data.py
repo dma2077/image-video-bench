@@ -101,7 +101,7 @@ def analyze_data(directory):
 
 # 指定路径
 directory_path = "/Users/dehua/code/image-video-bench/res/res_current/"
-directory_path = "/Users/dehua/code/image-video-bench/res/2_12"
+# directory_path = "/Users/dehua/code/image-video-bench/res/2_12"
 total_data_count, avg_dict_per_line, yes_no_ratio, number_ratio, question_type_ratio, random_guess_probabilities, total_random_guess_probability = analyze_data(directory_path)
 
 # 输出结果

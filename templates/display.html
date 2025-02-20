@@ -80,6 +80,9 @@
                         {% if username == 'user18' %}
                             <!-- 设置所有问题类型为 'Instruction manual' -->
                             <option value="Instruction manual" selected>Instruction manual</option>
+                        {% elif username == 'user19' %}
+                            <!-- 设置所有问题类型为 '总结性问题' -->
+                            <option value="Summary" selected>Summary</option>
                         {% else %}
                             {% for type in [
                                 "Summary", "Existence", "Constrained OCR", "Reverse Existence", "NLI",

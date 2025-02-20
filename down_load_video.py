@@ -50,7 +50,7 @@ def download_youtube_video(video_id, download_folder):
         "format": "bestvideo[height<=1080][ext=mp4]",
         "outtmpl": os.path.join(video_folder, "%(id)s.%(ext)s"),
         "quiet": False,
-        # "cookies": "/Users/dehua/code/image-video-bench/cookies.json",  # 如有需要可保留
+        #"cookies": "/Users/dehua/code/image-video-bench/cookies.txt",  # 如有需要可保留
         "cookiesfrombrowser": ("chrome",),  # 使用 Chrome 浏览器的 Cookie
         # 增加鲁棒性选项
         "retries": 10,
@@ -120,8 +120,13 @@ def save_metadata(metadata, metadata_file):
         f.write(json.dumps(metadata, ensure_ascii=False) + "\n")
 
 # 收集指定目录下的所有 video id
-def collect_video_ids(directory):
+
+def collect_video_ids(directory, video_dir):
     video_ids = []
+    
+    # 获取已经存在的视频文件名（去掉扩展名）
+    existing_videos = {os.path.splitext(f)[0] for f in os.listdir(video_dir) if os.path.isfile(os.path.join(video_dir, f))}
+    
     for filename in os.listdir(directory):
         if filename.endswith(".jsonl"):
             filepath = os.path.join(directory, filename)
@@ -130,8 +135,13 @@ def collect_video_ids(directory):
                     data = json.loads(line.strip())
                     if isinstance(data, dict) and len(data) == 1:
                         video_id = list(data.keys())[0]
-                        video_ids.append(video_id)
+                        
+                        # 只有当视频文件不存在时，才加入列表
+                        if video_id not in existing_videos:
+                            video_ids.append(video_id)
+    
     return video_ids
+
 
 if __name__ == "__main__":
     # 配置参数
@@ -139,9 +149,9 @@ if __name__ == "__main__":
     download_folder = "youtube_downloads"
     metadata_file = "metadata.jsonl"
     MAX_RETRIES = 3
-
+    video_dir = "/Users/dehua/code/image-video-bench/youtube_downloads/videos"
     create_download_folder(download_folder)
-    all_video_ids = collect_video_ids(directory_path)
+    all_video_ids = collect_video_ids(directory_path, video_dir)
 
     for video_id in all_video_ids:
         for attempt in range(MAX_RETRIES):

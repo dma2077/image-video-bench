@@ -24,7 +24,9 @@
     "dehua5": {
         "username": "dehua5",
         "s_idx": 1,
-        "e_idx": 23
+        "e_idx": 23,
+        "current_idx": 4,
+        "video_question_idx": 0
     },
     "dehua6": {
         "username": "dehua6",
