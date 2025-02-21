@@ -121,12 +121,16 @@ def save_metadata(metadata, metadata_file):
 
 # 收集指定目录下的所有 video id
 
-def collect_video_ids(directory, video_dir):
+def collect_video_ids(directory, video_dir_1, video_dir_2):
     video_ids = []
     
-    # 获取已经存在的视频文件名（去掉扩展名）
-    existing_videos = {os.path.splitext(f)[0] for f in os.listdir(video_dir) if os.path.isfile(os.path.join(video_dir, f))}
+    # 获取第一个下载目录中已经存在的视频文件名（去掉扩展名）
+    existing_videos = {os.path.splitext(f)[0] for f in os.listdir(video_dir_1) if os.path.isfile(os.path.join(video_dir_1, f))}
     
+    # 获取第二个下载目录中已经存在的视频文件名（去掉扩展名）
+    existing_videos.update({os.path.splitext(f)[0] for f in os.listdir(video_dir_2) if os.path.isfile(os.path.join(video_dir_2, f))})
+    
+    # 遍历 JSONL 文件
     for filename in os.listdir(directory):
         if filename.endswith(".jsonl"):
             filepath = os.path.join(directory, filename)
@@ -149,9 +153,10 @@ if __name__ == "__main__":
     download_folder = "youtube_downloads"
     metadata_file = "metadata.jsonl"
     MAX_RETRIES = 3
-    video_dir = "/Users/dehua/code/image-video-bench/youtube_downloads/videos"
+    video_dir1 = "/Users/dehua/code/image-video-bench/youtube_downloads/videos"
+    video_dir2 = "/Users/dehua/code/image-video-bench/youtube_downloads/videos_converted"
     create_download_folder(download_folder)
-    all_video_ids = collect_video_ids(directory_path, video_dir)
+    all_video_ids = collect_video_ids(directory_path, video_dir1, video_dir2)
 
     for video_id in all_video_ids:
         for attempt in range(MAX_RETRIES):

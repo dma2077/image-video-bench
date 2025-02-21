@@ -78,6 +78,6 @@ def check_videos_in_directory(directory, log_file='error_videos.txt'):
 
 if __name__ == "__main__":
     # 设置要检查的目录路径
-    directory_to_check = '/Users/dehua/code/image-video-bench/youtube_downloads/videos'  # 需要检查的视频文件夹路径
+    directory_to_check = '/Users/dehua/code/image-video-bench/youtube_downloads/videos_converted'  # 需要检查的视频文件夹路径
     log_file = '/Users/dehua/code/image-video-bench/youtube_downloads/error_videos.txt'  # 错误日志文件路径
     check_videos_in_directory(directory_to_check, log_file)
