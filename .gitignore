@@ -24,3 +24,6 @@ bench/plot_distribution.py
 bench/plot_category.py
 bench/merge_data.py
 *.png
+videos/*
+missing
+metadata.jsonl
