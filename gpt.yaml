@@ -1,0 +1,13 @@
+model:
+  name: gpt
+  path: /map-vepfs/models/Aria
+
+paths:
+  video_dir: /Users/dehua/code/image-video-bench/youtube_downloads/videos_converted
+  image_dir: /Users/dehua/code/image-video-bench/videos/images
+  question_file: /Users/dehua/code/image-video-bench/res/all_data_v3.jsonl
+  output_file: /Users/dehua/code/image-video-bench/res/all_data_v3_out.jsonl
+
+params:
+  nframes: 32
+  has_image: True

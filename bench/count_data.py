@@ -73,7 +73,7 @@ def analyze_data(directory):
 
     total_question_types = sum(question_type_counter.values())
     question_type_ratio = sorted(
-        {key: count / total_question_types for key, count in question_type_counter.items()}.items(),
+        {key: count for key, count in question_type_counter.items()}.items(),
         key=lambda x: x[1], reverse=True
     ) if total_question_types > 0 else []
 

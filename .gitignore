@@ -27,3 +27,5 @@ bench/merge_data.py
 videos/*
 missing
 metadata.jsonl
+.history
+inference_gpt.py

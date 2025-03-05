@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Annotating Videos</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/videos/display.css"> <!-- 引入外部CSS文件 -->
+</head>
+
+<body>
+    <div class="container">
+        <!-- 左侧栏 -->
+        <div class="left-column">
+            <h2>问题类型</h2>
+            <div class="QA-text">
+                {{ subscore_def[0] | safe }}
+            </div>
+            <h2>图片要求</h2>
+            <div class="QA-text">
+                {{ subscore_def[1] | safe }}
+            </div>
+        </div>
+
+        <!-- 中间栏 -->
+        <div class="center-column">
+            <!-- 视频播放器 -->
+            <div id="video-id-display" class="video-id">视频 ID: {{ vid_name }}</div>
+
+            <video class="video_style" controls autoplay muted loop>
+                <source src="{{ url_for('static', filename=video) }}" type="video/mp4">
+                您的浏览器不支持视频标签。
+            </video>
+
+            <script>
+                const videoId = "{{ vid_name }}"; 
+                const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+                document.getElementById("video-id-display").innerHTML = `视频 url <br> <a href="${videoUrl}" target="_blank">${videoUrl}</a>`;
+            </script>
+
+            <!-- 图片上传和预览区域 -->
+            <div class="upload-section">
+                <div id="image-upload-container" tabindex="0">
+                    <label for="image-upload" id="image-upload-label">点击上传图片或粘贴图片</label>
+                    <input type="file" id="image-upload" name="image" accept="image/*" form="submit-form">
+                    <input type="hidden" name="existing_image" value="{{ annotation.image_name }}">
+                    <div id="image-preview">
+                        {% if annotation.image_name %}
+                            <img src="{{ url_for('static', filename=annotation.image_name) }}" alt="Existing Image" class="preview-image">
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <h2>混淆项生成方法参考</h2>
+            <div class="QA-text">
+                {{ subscore_def[2] | safe }}
+            </div>
+        </div>
+
+        <!-- 右侧栏 -->
+        <div class="right-column">
+            <form id="submit-form" action="{{ url_for('submit') }}" method="post" enctype="multipart/form-data" class="main-form">
+                <input type="hidden" name="source_page" value="display">
+                <input type="hidden" name="video" value="{{ video }}">
+                <input type="hidden" name="current_idx" value="{{ current_idx }}">
+                <input type="hidden" name="video_question_idx" value="{{ video_question_idx }}">
+                <input type="hidden" name="video_question_number" value="{{ annotations|length }}">
+                <input type="hidden" name="existing_image" value="{{ annotation.image }}">
+                <input type="hidden" name="title_template" value="{{ title_template }}">
+                <input type="hidden" name="distractors_template" value="{{ distractors_template }}">
+                <input type="hidden" name="username" value="{{ username }}">
+
+                <div class="input-fields">
+                    <!-- 问题类型选择 -->
+                    <label for="question_type">一级分类:</label>
+                    <select id="question_type" name="question_type" required>
+                        <option value="" disabled {% if not annotation.question_type %}selected{% endif %}>
+                            Please select the type of question
+                        </option>
+                        
+                        {% if username == 'user18' %}
+                            <!-- 设置所有问题类型为 'Instruction manual' -->
+                            <option value="Instruction manual" selected>Instruction manual</option>
+                        {% elif username == 'user19' %}
+                            <!-- 设置所有问题类型为 '总结性问题' -->
+                            <option value="Summary" selected>Summary</option>
+                        {% elif username == 'user20' %}
+                            <!-- 设置所有问题类型为 '总结性问题' -->
+                            <option value="Attribute Change" selected>Attribute Change</option>
+                        {% else %}
+                            {% for type in [
+                                "Film and Television", "Sports Competition", "Artistic Performance", "Life Record", "Knowledge Dissemination",
+                            ] %}
+                                <option value="{{ type }}" 
+                                    {% if annotation.question_type == type %}selected{% endif %}
+                                    {% if type in selected_question_types and not annotation.question_type %}
+                                        class="required"
+                                    {% endif %}>
+                                    {{ type }}
+                                </option>
+                            {% endfor %}
+                        {% endif %}
+                    </select>
+
+
+                        <!-- 添加间距的 CSS 类 -->
+                    <div class="spacer"></div>
+
+                    <!-- 选择后生成的下拉框容器 -->
+                    <!-- 动态下拉容器增加class以便调试 -->
+                    <div id="dynamic-options-container" class="dynamic-dropdown"></div>
+
+                    <label for="question">二级分类:</label>
+                    <textarea id="question" name="question" rows="2" required>{{ annotation.question }}</textarea>
+
+
+                </div>
+
+                <div class="submit-button-container">
+                    <button type="submit" name="action" value="delete" class="button_delete" formnovalidate>删除</button>
+                    <button type="submit" name="action" value="submit" class="button_submit">提交</button>
+                    <button type="submit" name="action" value="copy" class="button_copy" formnovalidate>复制</button>
+                </div>
+            </form>
+
+            <form id="navigate-form" action="{{ url_for('submit') }}" method="post" class="navigate-form">
+                <input type="hidden" name="video" value="{{ video }}">
+                <input type="hidden" name="current_idx" value="{{ current_idx }}">
+                <input type="hidden" name="video_question_idx" value="{{ video_question_idx }}">
+                <input type="hidden" name="video_question_number" value="{{ annotations|length }}">
+                <input type="hidden" name="source_page" value="display">
+
+                <p><b>Current progress</b>: <br>{{ current_idx + 1 }}/{{ end_index + 1 }}</p>
+                <p><b>Current progress of this video</b>: {{ video_question_idx + 1 }}/{{ annotations|length }}</p>
+                <label for="next_idx">Turn to:</label>
+                <input type="number" name="next_idx" placeholder="123" class="idx_input_box" min="1" max="{{ end_index + 1 }}" required>
+                <button type="submit" name="action" value="navigate" class="navigate-button">Enter</button>
+            </form>
+
+            <div class="button-group">
+                <form action="{{ url_for('navigate_main') }}" method="post" class="button-form">
+                    <input type="hidden" name="current_idx" value="{{ current_idx }}">
+                    <input type="hidden" name="video_question_idx" value="{{ video_question_idx }}">
+                    <input type="hidden" name="video_question_number" value="{{ annotations|length }}">
+                    <input type="hidden" name="direction" value="last">
+                    <button type="submit" class="button_previous">上一个</button>
+                </form>
+
+                <form action="{{ url_for('navigate_main') }}" method="post" class="button-form">
+                    <input type="hidden" name="current_idx" value="{{ current_idx }}">
+                    <input type="hidden" name="video_question_idx" value="{{ video_question_idx }}">
+                    <input type="hidden" name="video_question_number" value="{{ annotations|length }}">
+                    <input type="hidden" name="direction" value="next">
+                    <button type="submit" class="button_next">下一个</button>
+                </form>
+            </div>
+
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <ul class="flashes">
+                  {% for message in messages %}
+                    <li>{{ message }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+    <script>
+        // 确保文档加载完成后执行
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("DOMContentLoaded event fired");
+    
+            try {
+                // 模板数据
+                const titleTemplate = {
+                    "Knowledge Dissemination": [
+                        "人文和历史",
+                        "文学与艺术",
+                        "生物学和医学",
+                        "金融和商业",
+                        "天文学",
+                        "地理",
+                        "法律",
+                        "生活小妙招",
+                        "科技"
+                    ],
+                    "Film and Television": [
+                        "动画片",
+                        "电影和电视节目",
+                        "记录片",
+                        "新闻报道",
+                        "电子竞技"
+                    ],  
+                    "Sports Competition": [
+                        "电子竞技",
+                        "篮球",
+                        "足球",
+                        "田径运动",
+                        "其它运动"
+                    ],
+                    "Artistic Performance": [
+                        "舞台剧",
+                        "魔术表演",
+                        "综艺节目",
+                        "杂技",
+                        "绘画",
+                        "音乐演出",
+                        "其他艺术表演"
+                    ],
+                    "Life Record": [
+                        "手工制作",
+                        "饮食",
+                        "时尚",
+                        "日常生活",
+                        "旅行",
+                        "宠物及动物",
+                        "健身"
+                    ],
+                };
+    
+                console.log("模板数据加载成功：", titleTemplate);
+    
+                // 获取DOM元素
+                const questionTypeSelect = document.getElementById('question_type');
+                const dynamicContainer = document.getElementById('dynamic-options-container');
+                const questionField = document.getElementById('question');
+                const myForm = document.getElementById('myForm'); // 表单元素
+    
+                if (!questionTypeSelect || !dynamicContainer || !questionField) {
+                    throw new Error('无法找到必要的DOM元素');
+                }
+    
+                // 更新二级分类下拉列表函数
+                function updateTemplateDropdown() {
+                    // 清空原有内容
+                    dynamicContainer.innerHTML = '';
+    
+                    // 获取当前选择的一级分类
+                    let selectedType = questionTypeSelect.value.trim();
+                    console.log("当前选择的问题类型：", selectedType);
+    
+                    // 如果未选择或无效，则显示提示“请选择一级分类”
+                    if (!selectedType || !titleTemplate[selectedType]) {
+                        dynamicContainer.innerHTML = '<select class="template-selector" disabled><option>请选择一级分类</option></select>';
+                        questionField.value = '';
+                        return;
+                    }
+    
+                    // 如果对应的二级分类数组为空，则清空二级区域
+                    if (titleTemplate[selectedType].length === 0) {
+                        dynamicContainer.innerHTML = '';
+                        questionField.value = '';
+                        return;
+                    }
+    
+                    // 创建二级分类下拉菜单，仅包含默认提示选项，不自动选中任何值
+                    const dropdown = document.createElement('select');
+                    dropdown.className = 'template-selector';
+                    dropdown.innerHTML = `
+                        <option value="">-- 选择二级分类 --</option>
+                        ${titleTemplate[selectedType].map(opt => `<option value="${opt.replace(/"/g, '&quot;')}">${opt}</option>`).join('')}
+                    `;
+    
+                    // 当用户选择二级分类时，将值同步到 questionField
+                    dropdown.addEventListener('change', function() {
+                        if (this.value) {
+                            questionField.value = this.value;
+                        } else {
+                            questionField.value = '';
+                        }
+                    });
+    
+                    dynamicContainer.appendChild(dropdown);
+                }
+    
+                // 监听一级分类变化，更新二级分类下拉列表
+                questionTypeSelect.addEventListener('change', updateTemplateDropdown);
+                updateTemplateDropdown();
+    
+                // 提交前验证：要求一级和二级分类都已选择
+                if (myForm) {
+                    myForm.addEventListener('submit', function(e) {
+                        const selectedPrimary = questionTypeSelect.value.trim();
+                        const secondaryDropdown = dynamicContainer.querySelector('.template-selector');
+                        const selectedSecondary = secondaryDropdown ? secondaryDropdown.value.trim() : "";
+                        if (!selectedPrimary || !selectedSecondary) {
+                            e.preventDefault();
+                            alert("请先选择一级分类和二级分类");
+                        }
+                    });
+                }
+    
+            } catch (error) {
+                console.error("初始化错误：", error);
+                alert("系统初始化失败，请检查控制台日志");
+            }
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const questionTypeSelect = document.getElementById('question_type');
+            const answerField = document.getElementById('answer');
+            const answerLocationField = document.getElementById('answer_location');
+            const granularity = document.getElementById('granularity');
+            const distractorFields = document.querySelectorAll('.distractors input');
+
+            const optionsData = {
+                "Summary": [],
+                "Existence": [
+                    "左一", "右一", "左二", "右二", "左一、左二、右一", "左一、左二、右二", "左一、右一、右二", "左二，右一，右二", "左一，左二", "左一，右二"
+                ],
+                "Reverse Existence": [
+                    "左二，右一，右二", "左一、右一、右二", "左一、左二、右二", "左一、左二、右一", "左一", "右一", "左二", "右二", "左一，左二", "左一，右二"
+                ],
+                "NLI": [
+                    "左一", "右一", "左二", "右二", "左一、左二、右一", "左一、左二、右二", "左一、右一、右二", "左二，右一，右二", "左一，左二", "左一，右二"
+                ],
+                "Counting": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+                "Constrained OCR": [],
+                "Space-time computing": [],
+                "Spatial relationship": [
+                    "上方", "下方", "左侧", "右侧", "左上", "左下", "右上", "右下", "正中央"
+                ],
+                "Keyframe extraction": [],
+                "Instruction manual": [],
+                "Attribute Change": [],
+                "Temporal Reasoning": [],
+                "Details Event": []
+            };
+
+            // 保留原有答案和干扰项
+            let originalAnswer = answerField.value;
+            let originalDistractors = Array.from(distractorFields).map(field => field.value);
+
+            // 用来标记是否是类型切换触发的更新
+            let isTypeChanged = false;
+
+            function updateFields() {
+                const selectedType = questionTypeSelect.value;
+                const options = optionsData[selectedType] || [];
+
+                // 如果是类型切换，则不受字段为空的限制
+                if (isTypeChanged) {
+                    // 进行类型切换后直接填充
+                    isTypeChanged = false; // 重置类型切换标志
+                    if (options.length > 0) {
+                        // 填充答案
+                        answerField.value = options[0]; // 默认填充第一个选项为答案
+
+                        // 填充干扰项
+                        const distractorValues = options.slice(1, 10); // 选择除了第一个选项的其他项作为干扰项
+                        distractorFields.forEach((input, index) => {
+                            input.value = distractorValues[index] || ''; // 填充干扰项，若没有则为空
+                        });
+                    } else {
+                        // 如果没有选项，则恢复原有答案和干扰项
+                        answerField.value = originalAnswer;
+                        distractorFields.forEach((input, index) => {
+                            input.value = originalDistractors[index];
+                        });
+                    }
+                    return; // 跳出函数，避免继续执行“所有字段为空才填充”的逻辑
+                }
+
+                // 检查是否所有字段都为空
+                const allFieldsEmpty = !answerField.value && Array.from(distractorFields).every(input => !input.value);
+
+                if (allFieldsEmpty) {
+                    // 如果所有答案和干扰项为空，则进行填充
+                    if (options.length > 0) {
+                        // 填充答案
+                        answerField.value = options[0]; // 默认填充第一个选项为答案
+
+                        // 填充干扰项
+                        const distractorValues = options.slice(1, 10); // 选择除了第一个选项的其他项作为干扰项
+                        distractorFields.forEach((input, index) => {
+                            input.value = distractorValues[index] || ''; // 填充干扰项，若没有则为空
+                        });
+                    } else {
+                        // 如果没有选项，则恢复原有答案和干扰项
+                        answerField.value = originalAnswer;
+                        distractorFields.forEach((input, index) => {
+                            input.value = originalDistractors[index];
+                        });
+                    }
+                }
+
+                // 填充答案位置
+                if (selectedType === "NLI" || selectedType === "Existence" || selectedType === "Reverse Existence") {
+                    answerLocationField.value = "Whole Video"; // 如果是这些问题类型，设置为 "Whole Video"
+                    granularity.value = "Whole Video";
+                    answerLocationField.disabled = true; // 禁用输入框
+                    granularity.disabled = true;
+                } else {
+                    answerLocationField.disabled = false; // 启用输入框
+                    granularity.disabled = false;
+                }
+            }
+
+            // 监听问题类型选择变化
+            questionTypeSelect.addEventListener('change', function() {
+                isTypeChanged = true; // 标记为类型切换
+                updateFields(); // 立即更新字段
+            });
+
+            // 页面加载时初始化
+            if (questionTypeSelect.value) {
+                updateFields();
+            }
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const answerField = document.getElementById('answer');
+            const swapButtons = document.querySelectorAll('.swapButton');
+
+            // 添加按钮点击事件
+            swapButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = this.getAttribute('data-index') - 1; // 获取按钮对应的干扰项索引
+                    const distractorField = document.getElementById(`distractor${index + 1}`);
+
+                    // 获取当前答案和对应干扰项的值
+                    const answerValue = answerField.value;
+                    const distractorValue = distractorField.value;
+
+                    // 交换答案和干扰项的值
+                    answerField.value = distractorValue;
+                    distractorField.value = answerValue;
+                });
+            });
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 获取清除干扰项按钮和干扰项输入框
+            const clearDistractorsButton = document.getElementById('clearDistractorsButton');
+            const distractorFields = document.querySelectorAll('.distractors input');
+
+            // 初始化临时数据
+            let tempData = {
+                distractors: Array(9).fill('') // 初始化 9 个干扰项
+            };
+
+            // 清空干扰项按钮的点击事件
+            clearDistractorsButton.addEventListener('click', function() {
+                // 清空页面上所有干扰项的值
+                distractorFields.forEach(input => {
+                    input.value = ''; // 清空干扰项输入框
+                });
+
+                // 清空临时数据中的干扰项
+                tempData.distractors = Array(9).fill(''); // 重置为默认的空数组
+            });
+
+            // 你可以在这里选择是否提交 tempData，或者保留它以供其他操作
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 格式化输入框的函数
+            function formatInput(inputField) {
+                inputField.addEventListener('input', function() {
+                    let inputValue = this.value;
+
+                    // 检查是否为纯数字并且长度为4或8
+                    if (/^\d{4}$/.test(inputValue)) {
+                        // 四位数字，转为 10:11 格式
+                        this.value = inputValue.slice(0, 2) + ':' + inputValue.slice(2);
+                    } else if (/^\d{8}$/.test(inputValue)) {
+                        // 八位数字，转为 10:11-20:22 格式
+                        const start = inputValue.slice(0, 4);
+                        const end = inputValue.slice(4);
+                        this.value = start.slice(0, 2) + ':' + start.slice(2) + '-' + end.slice(0, 2) + ':' + end.slice(2);
+                    } else {
+                        // 不符合四位或八位纯数字格式时，保持原样
+                        this.value = inputValue;
+                    }
+                });
+            }
+
+            // 获取所有需要格式化的输入框
+            const answerField = document.getElementById('answer');
+            const answerLocationField = document.getElementById('answer_location');
+            const distractorFields = document.querySelectorAll('.distractors input');
+
+            // 应用格式化规则到所有需要格式化的输入框
+            formatInput(answerField);
+            formatInput(answerLocationField);
+            distractorFields.forEach(field => {
+                formatInput(field);
+            });
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const answerField = document.getElementById('answer');
+            const distractorFields = document.querySelectorAll('.distractors input');
+            const generateDistractorsButton = document.getElementById('generateDistractorsButton');
+
+            function generateDistractors() {
+                let answer = answerField.value;
+                answer = formatAnswer(answer);
+
+                if (/^\d{2}:\d{2}$/.test(answer)) {
+                    let time = answer.replace(":", "");
+                    let distractors = [];
+
+                    for (let i = parseInt(time) - 25; i <= parseInt(time) + 25; i += 5) {
+                        if (i !== parseInt(time) && i > 0) {
+                            let formattedTime = formatTime(i);
+                            if (!distractors.includes(formattedTime)) {
+                                distractors.push(formattedTime);
+                            }
+                        }
+                    }
+
+                    let noChangeCount = 0;  // 计数器，记录没有变化的次数
+
+                    while (distractors.length < 9) {
+                        let formattedTime = formatTime(parseInt(time) + distractors.length * 5);
+                        
+                        // 如果没有变化
+                        if (!distractors.includes(formattedTime)) {
+                            distractors.push(formattedTime);
+                            noChangeCount = 0;  // 重置计数器，因为有变化
+                        } else {
+                            // 如果没有变化，计数器加1
+                            noChangeCount++;
+                            
+                            // 根据没有变化的次数来决定加多少
+                            let increment = noChangeCount > 1 ? noChangeCount : 1;  // 如果已经没有变化超过一次，就加2，否则加1
+                            
+                            distractors.push(formatTime(parseInt(time) + (distractors.length + increment) * 5));
+                        }
+                    }
+
+                    fillDistractors(distractors);
+                }
+                else if (/^\d{2}:\d{2}-\d{2}:\d{2}$/.test(answer)) {
+                    let [startTime, endTime] = answer.split('-');
+                    let start = startTime.replace(":", "");
+                    let end = endTime.replace(":", "");
+
+                    let startMinutes = parseInt(start.slice(0, 2));
+                    let startSeconds = parseInt(start.slice(2, 4));
+                    let endMinutes = parseInt(end.slice(0, 2));
+                    let endSeconds = parseInt(end.slice(2, 4));
+
+                    let startInSeconds = startMinutes * 60 + startSeconds;
+                    let endInSeconds = endMinutes * 60 + endSeconds;
+                    let interval = endInSeconds - startInSeconds;
+
+                    // 检查间隔是否过小
+                    if (interval <= 0) {
+                        alert("Invalid time range: start time must be less than end time.");
+                        return;
+                    }
+
+                    let distractors = [];
+                    let numDistractors = 9;
+                    let leftDistractors = Math.floor(numDistractors / 2);
+                    let rightDistractors = numDistractors - leftDistractors;
+
+                    // 从正确答案的时间段两侧生成干扰项
+                    for (let i = 1; i <= leftDistractors; i++) {
+                        let newStartTimeInSeconds = startInSeconds - i * interval;
+                        let newEndTimeInSeconds = newStartTimeInSeconds + interval;
+
+                        if (newStartTimeInSeconds >= 0) {  // 确保不小于 00:00
+                            let newStartTime = formatTime(newStartTimeInSeconds);
+                            let newEndTime = formatTime(newEndTimeInSeconds);
+                            let timeRange = newStartTime + '-' + newEndTime;
+                            if (!distractors.includes(timeRange)) {
+                                distractors.push(timeRange);
+                            }
+                        }
+                    }
+
+                    // 从右侧生成干扰项
+                    for (let i = 0; i < rightDistractors; i++) {
+                        let newStartTimeInSeconds = startInSeconds + (i + 1) * interval;
+                        let newEndTimeInSeconds = newStartTimeInSeconds + interval;
+                        let newStartTime = formatTime(newStartTimeInSeconds);
+                        let newEndTime = formatTime(newEndTimeInSeconds);
+                        let timeRange = newStartTime + '-' + newEndTime;
+
+                        if (!distractors.includes(timeRange)) {
+                            distractors.push(timeRange);
+                        }
+                    }
+
+                    let noChangeCount = 0;  // 计数器，记录没有变化的次数
+
+                    // 如果不足9个干扰项，继续从右侧生成
+                    while (distractors.length < 9) {
+                        let newStartTimeInSeconds = endInSeconds + (distractors.length - leftDistractors) * interval;
+                        let newEndTimeInSeconds = newStartTimeInSeconds + interval;
+                        let newStartTime = formatTime(newStartTimeInSeconds);
+                        let newEndTime = formatTime(newEndTimeInSeconds);
+                        let timeRange = newStartTime + '-' + newEndTime;
+
+                        // 如果时间段不在干扰项数组中，表示有变化
+                        if (!distractors.includes(timeRange)) {
+                            distractors.push(timeRange);
+                            noChangeCount = 0;  // 重置计数器，因为有变化
+                        } else {
+                            // 如果没有变化，计数器加1
+                            noChangeCount++;
+                            
+                            // 根据没有变化的次数来决定加多少
+                            let increment = noChangeCount > 1 ? noChangeCount : 1;  // 如果已经没有变化超过一次，就加2，否则加1
+                            
+                            // 重新生成干扰项
+                            let newStartTimeInSeconds = endInSeconds + (distractors.length - leftDistractors) * interval + increment;
+                            let newEndTimeInSeconds = newStartTimeInSeconds + interval;
+                            let newStartTime = formatTime(newStartTimeInSeconds);
+                            let newEndTime = formatTime(newEndTimeInSeconds);
+                            let timeRange = newStartTime + '-' + newEndTime;
+
+                            distractors.push(timeRange);
+                        }
+                    }
+
+                    fillDistractors(distractors);
+                }
+                else if (/^\d+$/.test(answer)) {
+                    let num = parseInt(answer);
+                    let distractors = [];
+
+                    for (let i = num - 5; i <= num + 5; i++) {
+                        if (i !== num && i > 0) {
+                            if (!distractors.includes(i)) {
+                                distractors.push(i);
+                            }
+                        }
+                    }
+
+                    while (distractors.length < 9) {
+                        let nextDistractor = num + distractors.length + 1;
+                        if (!distractors.includes(nextDistractor)) {
+                            distractors.push(nextDistractor);
+                        }
+                    }
+
+                    fillDistractors(distractors);
+                }
+                else {
+                    alert("Invalid answer format. Please provide a valid time or time range.");
+                }
+            }
+
+            function formatAnswer(answer) {
+                return answer;
+            }
+
+            function formatTime(num) {
+                let minutes = Math.floor(num / 100);
+                let seconds = num % 100;
+
+                if (seconds >= 60) {
+                    minutes += Math.floor(seconds / 60);
+                    seconds = seconds % 60;
+                }
+
+                if (minutes >= 60) {
+                    minutes = 59;
+                }
+
+                return String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+            }
+
+            function fillDistractors(distractors) {
+                distractorFields.forEach((field, index) => {
+                    field.value = distractors[index] || '';
+                });
+            }
+
+            generateDistractorsButton.addEventListener('click', function() {
+                generateDistractors();
+            });
+        });
+    </script>
+
+    <script>
+        // 处理图片上传的预览
+        const imageInput = document.getElementById('image-upload');
+        const imagePreview = document.getElementById('image-preview');
+        const uploadContainer = document.getElementById('image-upload-container');
+
+        function displayImage(file) {
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.innerHTML = '';
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.alt = "Image Preview";
+                    img.classList.add('preview-image');
+                    imagePreview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('请上传有效的图片文件。');
+            }
+        }
+
+        imageInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            displayImage(file);
+        });
+
+        uploadContainer.addEventListener('paste', function(event) {
+            const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+            for (let index in items) {
+                const item = items[index];
+                if (item.kind === 'file' && item.type.startsWith('image/')) {
+                    const blob = item.getAsFile();
+                    displayImage(blob);
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(blob);
+                    imageInput.files = dataTransfer.files;
+                    break;
+                }
+            }
+        });
+
+        uploadContainer.addEventListener('click', function() {
+            uploadContainer.focus();
+        });
+
+        uploadContainer.addEventListener('focus', function() {
+            uploadContainer.classList.add('focused');
+        });
+        uploadContainer.addEventListener('blur', function() {
+            uploadContainer.classList.remove('focused');
+        });
+    </script>
+</body>
+</html>

@@ -130,19 +130,31 @@ def collect_video_ids(directory, video_dir_1, video_dir_2):
     # 获取第二个下载目录中已经存在的视频文件名（去掉扩展名）
     existing_videos.update({os.path.splitext(f)[0] for f in os.listdir(video_dir_2) if os.path.isfile(os.path.join(video_dir_2, f))})
     
-    # 遍历 JSONL 文件
-    for filename in os.listdir(directory):
-        if filename.endswith(".jsonl"):
-            filepath = os.path.join(directory, filename)
-            with open(filepath, "r", encoding="utf-8") as file:
-                for line in file:
-                    data = json.loads(line.strip())
-                    if isinstance(data, dict) and len(data) == 1:
-                        video_id = list(data.keys())[0]
-                        
-                        # 只有当视频文件不存在时，才加入列表
-                        if video_id not in existing_videos:
-                            video_ids.append(video_id)
+    if directory.endswith(".jsonl"):
+        filepath = os.path.join(directory, filename)
+        with open(filepath, "r", encoding="utf-8") as file:
+            for line in file:
+                data = json.loads(line.strip())
+                if isinstance(data, dict) and len(data) == 1:
+                    video_id = list(data.keys())[0]
+                    
+                    # 只有当视频文件不存在时，才加入列表
+                    if video_id not in existing_videos:
+                        video_ids.append(video_id)
+    else:
+        # 遍历 JSONL 文件
+        for filename in os.listdir(directory):
+            if filename.endswith(".jsonl"):
+                filepath = os.path.join(directory, filename)
+                with open(filepath, "r", encoding="utf-8") as file:
+                    for line in file:
+                        data = json.loads(line.strip())
+                        if isinstance(data, dict) and len(data) == 1:
+                            video_id = list(data.keys())[0]
+                            
+                            # 只有当视频文件不存在时，才加入列表
+                            if video_id not in existing_videos:
+                                video_ids.append(video_id)
     
     return video_ids
 
@@ -157,7 +169,7 @@ if __name__ == "__main__":
     video_dir2 = "/Users/dehua/code/image-video-bench/youtube_downloads/videos_converted"
     create_download_folder(download_folder)
     all_video_ids = collect_video_ids(directory_path, video_dir1, video_dir2)
-
+    all_video_ids = ['bgrhfIkC1R4']
     for video_id in all_video_ids:
         for attempt in range(MAX_RETRIES):
             try:

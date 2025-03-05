@@ -2,7 +2,7 @@ import os
 import json
 
 valid_count = 0
-file_path = "/Users/dehua/code/image-video-bench/res/all_data_v2.jsonl"
+file_path = "/Users/dehua/code/image-video-bench/res/all_data_v3.jsonl"
 with open(file_path, 'r', encoding='utf-8') as file:
     for line in file.readlines():
         line = json.loads(line)
