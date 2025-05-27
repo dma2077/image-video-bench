@@ -29,3 +29,14 @@ missing
 metadata.jsonl
 .history
 inference_gpt.py
+outputs/*
+videoFrames/
+bench/*
+bench/plot_perference.py
+inference_*
+!res/res_current_test/
+!res/res_current_test/**
+res/res_current_test/*.py
+metadata.jsonl
+*.sh
+sample_video_ids_1222.txt

@@ -31,7 +31,7 @@ login_manager.init_app(app)
 login_manager.login_view = "welcome"
 
 local_video_dir = "./examples/youtube_sampled"
-res_dir = "./res/res_current"
+res_dir = "./res/res_current_test"
 text_files_dir = "text_files"
 text_en_path = f"./{text_files_dir}/text_en_display.jsonl"
 text_zh_path = f"./{text_files_dir}/text_zh_display.jsonl"
