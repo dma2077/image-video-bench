@@ -31,15 +31,15 @@ login_manager.init_app(app)
 login_manager.login_view = "welcome"
 
 local_video_dir = "./examples/youtube_sampled"
-res_dir = "./res/res_current"
+res_dir = "./res/res_current_test"
 text_files_dir = "text_files"
 text_en_path = f"./{text_files_dir}/text_en_display.jsonl"
 text_zh_path = f"./{text_files_dir}/text_zh_display.jsonl"
-user_info_path = f"./{text_files_dir}/user_info.json"
+user_info_path = f"./{text_files_dir}/user_info_test.json"
 user_question_type_info_path = f"./{text_files_dir}/user_question_type_info.json"
 
 reported_problem_log = f"./{text_files_dir}/problem_reported.json"
-sampled_id_file = f"./{text_files_dir}/updated_sampled_videos_ids_0109.json"
+sampled_id_file = f"./{text_files_dir}/video_ids.json"
 title_template_file = f"./{text_files_dir}/annonation_template.json"
 distractors_template_file = f"./{text_files_dir}/distractors_template.json"
 
@@ -210,7 +210,7 @@ def login_method_1():
     session["e_idx"] = curr_user_dict.get("e_idx", len(video_id_list) - 1)
     session["current_idx"] = curr_user_dict.get("current_idx", 0)
     session["video_question_idx"] = 0  # 初始化当前标注索引
-    session["image_root"] = f"./upload_images/{username}"
+    session["image_root"] = f"./upload_images_test/{username}"
     return redirect(url_for("display"))
 
 
@@ -234,7 +234,7 @@ def login_method_2():
     session["e_idx"] = curr_user_dict.get("e_idx", len(video_id_list) - 1)
     session["current_idx"] = curr_user_dict.get("current_idx", 0)
     session["video_question_idx"] = 0  # 初始化当前标注索引
-    session["image_root"] = f"./upload_images/{username}"
+    session["image_root"] = f"./upload_images_test/{username}"
     return redirect(url_for("display_type"))
 
 
@@ -689,7 +689,7 @@ def submit():
         return redirect(url_for("welcome"))
 
     # 配置上传文件夹和允许的扩展名
-    UPLOAD_FOLDER = f"./videos/upload_images/{username}"
+    UPLOAD_FOLDER = f"./videos/upload_images_test/{username}"
     # 检查是否存在，不存在则创建
     if not os.path.exists(UPLOAD_FOLDER):
         os.makedirs(UPLOAD_FOLDER)
