@@ -40,3 +40,4 @@ res/res_current_test/*.py
 metadata.jsonl
 *.sh
 sample_video_ids_1222.txt
+results.log
